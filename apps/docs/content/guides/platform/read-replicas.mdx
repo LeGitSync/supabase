@@ -28,13 +28,33 @@ You can only read data from a Read Replica. This is in contrast to a Primary dat
 | Primary      | ✅     | ✅     | ✅     | ✅     |
 | Read Replica | ✅     | -      | -      | -      |
 
-## Sub heading
+<Accordion
+  type="default"
+  openBehaviour="multiple"
+  chevronAlign="right"
+  justified
+  size="large"
+  className="text-foreground-light mt-8 mb-6"
+>
+  <div className="border-b mt-3 pb-3">
+    <AccordionItem
+      header="Do you need Read Replicas?"
+      id="rr-flow"
+    >
 
-<Image
-  src="/docs/img/guides/platform/read-replicas/read-replicas-flow.svg"
-  zoomable
-  alt="Read Replicas decision flowchart"
-/>
+    When your database starts slowing down, you face a choice: make your existing database bigger, or spread the load across multiple databases. Both approaches work. Neither is universally correct. The right answer depends on your workload, your budget, and where the bottleneck actually is.
+
+    <Image
+      src="/docs/img/guides/platform/read-replicas/read-replicas-flow.svg"
+      zoomable
+      alt="Read Replicas decision flowchart"
+    />
+
+    </AccordionItem>
+
+  </div>
+
+</Accordion>
 
 ## Features
 
