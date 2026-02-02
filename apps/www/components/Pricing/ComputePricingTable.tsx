@@ -32,8 +32,8 @@ const ComputePricingTable = () => {
               <Fragment key={`row-${i}`}>
                 {i === 0 && (
                   <tr>
-                    <td className="pb-1 bg-border-strong px-3 py-1 -mr-1 border-l-4 border-strong">
-                      <span>First instance is free on paid plans</span>
+                    <td colSpan={2} className="pb-1 bg-border-strong px-3 py-1 -mr-1 border-l-4 border-strong">
+                      <span>Free via $10/month compute credits on paid plans</span>
                     </td>
                   </tr>
                 )}
