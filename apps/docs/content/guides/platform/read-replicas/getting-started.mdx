@@ -16,16 +16,21 @@ Projects must meet these requirements to use Read Replicas:
 
 1. Running on AWS.
 2. Running on at least a [Small compute add-on](/docs/guides/platform/compute-add-ons).
-  - Read Replicas are started on the same compute instance as the Primary to keep up with changes.
+
+- Read Replicas are started on the same compute instance as the Primary to keep up with changes.
+
 3. Running on Postgres 15+.
-  - For projects running on older versions of Postgres, you need to [upgrade to the latest platform version](/docs/guides/platform/migrating-and-upgrading-projects#pgupgrade).
+
+- For projects running on older versions of Postgres, you need to [upgrade to the latest platform version](/docs/guides/platform/migrating-and-upgrading-projects#pgupgrade).
+
 4. Using [physical backups](/docs/guides/platform/backups#point-in-time-recovery)
-  - Physical backups are automatically enabled if using [Point in time recovery (PITR)](/docs/guides/platform/backups#point-in-time-recovery)
-  - If you're not using PITR, you can switch to physical backups as part of the Read Replica setup process.
-  
+
+- Physical backups are automatically enabled if using [Point in time recovery (PITR)](/docs/guides/platform/backups#point-in-time-recovery)
+- If you're not using PITR, you can switch to physical backups as part of the Read Replica setup process.
+
   <Admonition type="note">
 
-  You can't download physical backups from the dashboard in the same way as logical backups.
+You can't download physical backups from the dashboard in the same way as logical backups.
 
   </Admonition>
 
@@ -135,7 +140,7 @@ These operations need to complete before you can re-deploy Read Replicas.
 
 ### Monitoring replication lag
 
-You can monitor replication lag for a specific Read Replica through a project dashboard on the [**Database Reports page**](/dashboard/project/_/observability/database) Read Replicas have an additional chart under **Replica Information** displaying historical replication lag in seconds. 
+You can monitor replication lag for a specific Read Replica through a project dashboard on the [**Database Reports page**](/dashboard/project/_/observability/database) Read Replicas have an additional chart under **Replica Information** displaying historical replication lag in seconds.
 
 You can see realtime replication lag in seconds on the [**Infrastructure Settings** page](/dashboard/project/_/settings/infrastructure). This is the value on top of the Read Replica.
 
@@ -158,7 +163,7 @@ Some common sources of high replication lag include:
 1. **Exclusive locks on tables on the Primary**: Operations such as `drop table` and `reindex` take an access exclusive lock on the table. This can result in increasing replication lag for the duration of the lock.
 2. **Resource Constraints on the database**: Heavy utilization on the primary or the replica, if run on an under-resourced project, can result in high replication lag. This includes the characteristics of the disk being utilized (IOPS, Throughput).
 3. **Long-running transactions on the Primary**: Transactions that run for a long-time on the primary can also result in high replication lag. You can use the `pg_stat_activity` view to identify and terminate such transactions if needed. `pg_stat_activity` is a live view, and does not offer historical data on transactions that might have been active for a long time in the past.
-High replication lag can result in stale data returned for queries executed against the affected read replicas.
+   High replication lag can result in stale data returned for queries executed against the affected read replicas.
 
 <Admonition type="tip" >
 
