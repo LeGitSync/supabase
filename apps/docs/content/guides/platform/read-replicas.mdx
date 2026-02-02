@@ -55,7 +55,7 @@ Read Replicas only support `GET` requests from the [REST API](/docs/guides/api).
 
 </Admonition>
 
-<Admonition type="warning">
+<Admonition type="caution">
 
 Requests to other Supabase products, such as Auth, Storage, and Realtime, aren't able to use a Read Replica or its API endpoint. Support for more products will be added in the future.
 
@@ -67,11 +67,15 @@ A connection pool through Supavisor is also available for each Read Replica. Fin
 
 ### API load balancer
 
-A load balancer is automatically balance requests between your Primary database and Read Replicas. Find its endpoint on the [**API Settings page**](/dashboard/project/_/settings/api).
+A load balancer automatically balances requests between your Primary database and Read Replicas. Find its endpoint on the [**API Settings page**](/dashboard/project/_/settings/api).
 
 The load balancer enables geo-routing for Data API requests to automatically route `GET` requests to the database closest to your user ensuring the lowest latency. You can also send Non-`GET` requests through this endpoint, and they are routed to the Primary database.
-{/* TODO: Check */}
-You can also interact with Supabase services (Auth, Edge Functions, Realtime, and Storage) through this load balancer so there's no need to worry about which endpoint to use and in which situations. Geo-routing for Auth, Realtime, and Storage aren't yet available but are coming soon.
+
+<Admonition type="info">
+
+You can also interact with other Supabase services (Auth, Edge Functions, Realtime, and Storage) through this load balancer so there's no need to worry about which endpoint to use and in which situations. Geo-routing for Auth, Realtime, and Storage aren't yet available but are coming soon.
+
+</Admonition>
 
 <Admonition type="note">
 
