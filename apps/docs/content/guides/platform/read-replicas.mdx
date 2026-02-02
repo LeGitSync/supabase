@@ -71,7 +71,7 @@ A load balancer is automatically balance requests between your Primary database 
 
 The load balancer enables geo-routing for Data API requests to automatically route `GET` requests to the database closest to your user ensuring the lowest latency. You can also send Non-`GET` requests through this endpoint, and they are routed to the Primary database.
 {/* TODO: Check */}
-You can also interact with Supabase services (Auth, Edge Functions, Realtime, and Storage) through this load balancer so there's no need to worry about which endpoint to use and in which situations. Geo-routing for these services aren't yet available but is coming soon.
+You can also interact with Supabase services (Auth, Edge Functions, Realtime, and Storage) through this load balancer so there's no need to worry about which endpoint to use and in which situations. Geo-routing for Auth, Realtime, and Storage aren't yet available but are coming soon.
 
 <Admonition type="note">
 
@@ -83,13 +83,12 @@ To call a read-only Postgres function on Read Replicas through the REST API, use
 
 If you remove all Read Replicas from your project, the load balancer and its endpoint are removed as well. Make sure to redirect requests back to your Primary database before removal.
 
-{/* TODO: Update */}
 <Admonition type="note">
 
-Starting on April 4th, 2025, we will be changing the routing behavior for eligible Data API requests:
+From April 4th, 2025, the routing behavior for eligible Data API requests changed:
 
-- Old behavior: Round-Robin distribution among all databases (all read replicas + primary) of your project, regardless of location
-- New behavior: Geo-routing, that directs requests to the closest available database (all read replicas + primary)
+- **Old behavior**: Round-Robin distribution among all databases (all read replicas + primary) of your project, regardless of location
+- **New behavior**: Geo-routing, that directs requests to the closest available database (all read replicas + primary)
 
 The new behavior delivers a better experience for your users by minimizing the latency to your project. You can take full advantage of this by placing Read Replicas close to your major customer bases.
 
