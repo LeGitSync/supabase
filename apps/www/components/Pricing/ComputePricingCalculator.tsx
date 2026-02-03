@@ -1,13 +1,10 @@
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import {
-  Button,
-  Slider_Shadcn_,
-  cn,
-} from 'ui'
+import { Button, Slider_Shadcn_, cn } from 'ui'
 import { ComputeBadge } from 'ui-patterns/ComputeBadge'
 import { InfoTooltip } from 'ui-patterns/info-tooltip'
+
 import pricingAddOn from '~/data/PricingAddOnTable.json'
 
 const findIntanceValueByColumn = (instance: any, column: string) =>
@@ -23,7 +20,10 @@ interface ComputePricingCalculatorProps {
   }
 }
 
-const ComputePricingCalculator = ({ disableInteractivity, activePlan = { name: 'Pro', price: 25 } }: ComputePricingCalculatorProps) => {
+const ComputePricingCalculator = ({
+  disableInteractivity,
+  activePlan = { name: 'Pro', price: 25 },
+}: ComputePricingCalculatorProps) => {
   // Filter out rows with no specific pricing
   const computeInstances = pricingAddOn.database.rows.filter((row) =>
     row.columns.some((it) => it.key === 'pricing' && it.value !== 'Contact Us')
@@ -175,7 +175,7 @@ const ComputePricingCalculator = ({ disableInteractivity, activePlan = { name: '
                   max={priceSteps.length}
                   step={1}
                   className={cn(
-                    "w-full cursor-grab active:cursor-grabbing",
+                    'w-full cursor-grab active:cursor-grabbing',
                     !hasInteractedWithSlider && "[&_[data-slot='slider-thumb']]:animate-pulse"
                   )}
                 />

@@ -1,16 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
 import { ChevronDownIcon } from '@heroicons/react/outline'
+import Link from 'next/link'
+import React, { useEffect, useRef, useState } from 'react'
 import { useWindowSize } from 'react-use'
-
+import { plans as allPlans } from 'shared-data/plans'
 import { Button, cn } from 'ui'
-import { ToggleGroup, ToggleGroupItem } from 'ui/src/components/shadcn/ui/toggle-group'
 import { InfoTooltip } from 'ui-patterns/info-tooltip'
+
 import Panel from '../Panel'
+import ComputePricingCalculator from './ComputePricingCalculator'
 import ComputePricingTable from './ComputePricingTable'
 import PricingComputeAnimation from './PricingComputeAnimation'
-import ComputePricingCalculator from './ComputePricingCalculator'
-import { plans as allPlans } from 'shared-data/plans'
+import { ToggleGroup, ToggleGroupItem } from 'ui/src/components/shadcn/ui/toggle-group'
 
 const plans = allPlans
   .filter((plan) => plan.planId === 'pro' || plan.planId === 'team')
@@ -63,9 +63,7 @@ const PricingComputeSection = () => {
           </ToggleGroup>
 
           <div className="grid gap-3">
-            <h3 className="text-foreground text-2xl font-medium">
-              {activePlan.name}
-            </h3>
+            <h3 className="text-foreground text-2xl font-medium">{activePlan.name}</h3>
             <div className="grid gap-1">
               <p className="text-foreground text-lg">
                 <span className="font-mono font-bold">${activePlan.price}</span>
@@ -75,7 +73,9 @@ const PricingComputeSection = () => {
             <div className="grid gap-2 text-sm">
               {activePlan.name === 'Pro' && (
                 <>
-                  <p className="text-foreground-light font-medium">Everything in the Free Plan, plus:</p>
+                  <p className="text-foreground-light font-medium">
+                    Everything in the Free Plan, plus:
+                  </p>
                   <p className="text-foreground-light">100K monthly active users</p>
                   <p className="text-foreground-light">8 GB disk size per project</p>
                   <p className="text-foreground-light">250 GB bandwidth</p>
@@ -85,7 +85,9 @@ const PricingComputeSection = () => {
               )}
               {activePlan.name === 'Team' && (
                 <>
-                  <p className="text-foreground-light font-medium">Everything in the Pro Plan, plus:</p>
+                  <p className="text-foreground-light font-medium">
+                    Everything in the Pro Plan, plus:
+                  </p>
                   <p className="text-foreground-light">SOC2</p>
                   <p className="text-foreground-light">Project-scoped and read-only access</p>
                   <p className="text-foreground-light">HIPAA available as paid add-on</p>
@@ -101,8 +103,13 @@ const PricingComputeSection = () => {
           </div>
         </div>
         <div className="relative col-span-2 h-full w-full p-4 lg:p-8">
-          <h3 className="text-foreground-light text-lg mb-2">2. Configure compute for your projects</h3>
-          <p className="text-foreground-lighter text-xs mb-6">Paid plans can have unlimited projects. Pay only for compute usage (from <span translate="no">$10</span>/month for Micro).</p>
+          <h3 className="text-foreground-light text-lg mb-2">
+            2. Configure compute for your projects
+          </h3>
+          <p className="text-foreground-lighter text-xs mb-6">
+            Paid plans can have unlimited projects. Pay only for compute usage (from{' '}
+            <span translate="no">$10</span>/month for Micro).
+          </p>
 
           <ComputePricingCalculator activePlan={activePlan} />
         </div>
@@ -110,29 +117,24 @@ const PricingComputeSection = () => {
       <hr className="border-0 border-t" />
       <div className="flex flex-col">
         <div className="flex gap-2 p-6 justify-between items-center mt-2">
-          <div className='grid gap-2'>
+          <div className="grid gap-2">
             <p>
-
- <span className="border bg-alternative px-3 py-0.5 text-foreground text-sm rounded-full">
-                  Starts from <span translate="no">$10</span>/month
-                </span>
+              <span className="border bg-alternative px-3 py-0.5 text-foreground text-sm rounded-full">
+                Starts from <span translate="no">$10</span>/month
+              </span>
             </p>
-              <h3 className="text-foreground text-2xl">
-                Scale compute up to
-                <br className="hidden sm:block" /> 64 cores and 256 GB RAM
-              </h3>
-
+            <h3 className="text-foreground text-2xl">
+              Scale compute up to
+              <br className="hidden sm:block" /> 64 cores and 256 GB RAM
+            </h3>
           </div>
 
-
-            <Button asChild size="tiny" type="default">
-              <Link href="https://supabase.com/docs/guides/platform/compute-add-ons">
-                Learn about Compute add-ons
-              </Link>
-            </Button>
-
-
-            </div>
+          <Button asChild size="tiny" type="default">
+            <Link href="https://supabase.com/docs/guides/platform/compute-add-ons">
+              Learn about Compute add-ons
+            </Link>
+          </Button>
+        </div>
         <div
           className="relative w-full overflow-hidden transition-all !ease-[cubic-bezier(.76,0,.23,1)] duration-300"
           style={{ height: showTable ? `${height}px` : '200px' }}
