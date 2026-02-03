@@ -1458,11 +1458,6 @@ export const api: NavMenuConstant = {
       items: [],
     },
     {
-      name: 'Generating TypeScript Types',
-      url: '/guides/api/rest/generating-types',
-      items: [],
-    },
-    {
       name: 'Security',
       url: '/guides/api',
       items: [
