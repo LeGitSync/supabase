@@ -152,7 +152,7 @@ export const CreateOrUpdateCustomProviderSheet = ({
               <span className="sr-only">Close</span>
             </SheetClose>
             <SheetTitle className="truncate">
-              {isEditMode ? 'Update custom OAuth Provider' : 'Create a new custom OAuth Provider'}
+              {isEditMode ? 'Update Custom Auth Provider' : 'Create a new Custom Auth Provider'}
             </SheetTitle>
           </div>
         </SheetHeader>
