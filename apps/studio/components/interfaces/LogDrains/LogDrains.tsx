@@ -58,6 +58,7 @@ export function LogDrains({
   const sentryEnabled = useFlag('SentryLogDrain')
   const s3Enabled = useFlag('S3logdrain')
   const axiomEnabled = useFlag('axiomLogDrain')
+  const otlpEnabled = useFlag('otlpLogDrain')
   const hasLogDrains = !!logDrains?.length
 
   const { mutate: deleteLogDrain } = useDeleteLogDrainMutation({
@@ -96,6 +97,7 @@ export function LogDrains({
             if (t.value === 'sentry') return sentryEnabled
             if (t.value === 's3') return s3Enabled
             if (t.value === 'axiom') return axiomEnabled
+            if (t.value === 'otlp') return otlpEnabled
             return true
           }).map((src) => (
             <LogDrainsCard

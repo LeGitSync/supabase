@@ -1,6 +1,5 @@
 import { components } from 'api-types'
-import { Datadog, Grafana, Sentry } from 'icons'
-import { Axiom } from 'icons'
+import { Datadog, Grafana, Sentry, Axiom, Otlp } from 'icons'
 import { BracesIcon, Cloud } from 'lucide-react'
 
 const iconProps = {
@@ -51,6 +50,12 @@ export const LOG_DRAIN_TYPES = [
       'Axiom is a data platform designed to efficiently collect, store, and analyze event and telemetry data at massive scale.',
     icon: <Axiom {...iconProps} fill="currentColor" strokeWidth={0} />,
   },
+  {
+    value: 'otlp',
+    name: 'OTLP',
+    description: 'Send logs to any OpenTelemetry Protocol (OTLP) compatible endpoint',
+    icon: <Otlp {...iconProps} fill="currentColor" strokeWidth={0} />,
+  },
 ] as const
 
 export const LOG_DRAIN_SOURCE_VALUES = LOG_DRAIN_TYPES.map((source) => source.value)
@@ -93,4 +98,15 @@ export type LogDrainDatadogConfig = {
 
 export type LogDrainWebhookConfig = {
   url: string
+}
+
+export const OTLP_PROTOCOLS = [
+  { label: 'HTTP/Protobuf', value: 'http/protobuf' },
+] as const
+
+export type LogDrainOtlpConfig = {
+  endpoint: string
+  protocol?: string
+  gzip?: boolean
+  headers?: Record<string, string>
 }

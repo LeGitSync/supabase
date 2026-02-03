@@ -19,6 +19,7 @@ The following table lists the supported destinations and the required setup conf
 | Loki                  | HTTP             | URL <br /> Headers                                                                     |
 | Sentry                | HTTP             | DSN                                                                                    |
 | Amazon S3             | AWS SDK          | S3 Bucket <br/> Region <br/> Access Key ID <br/> Secret Access Key <br/> Batch Timeout |
+| OTLP                  | HTTP             | Endpoint <br /> Protocol <br/> Gzip <br /> Headers |
 
 HTTP requests are batched with a max of 250 logs or 1 second intervals, whichever happens first. Logs are compressed via Gzip if the destination supports it.
 
@@ -243,6 +244,101 @@ Required configuration when creating an S3 Log Drain:
 Ensure the AWS account tied to the Access Key ID has permissions to write to the specified S3 bucket.
 
 </Admonition>
+
+## OTLP (OpenTelemetry Protocol)
+
+Logs are sent to any OTLP-compatible endpoint using the OpenTelemetry Protocol over HTTP with Protocol Buffers encoding.
+
+OTLP is an open-standard protocol for telemetry data, making it compatible with many observability platforms including:
+- OpenTelemetry Collector
+- Grafana Cloud
+- New Relic
+- Honeycomb
+- Datadog (OTLP ingestion)
+- Elastic
+- And many more
+
+Required configuration when creating an OTLP Log Drain:
+
+- Endpoint: The full URL of your OTLP HTTP endpoint (typically ending in `/v1/logs`)
+- Protocol: Currently only `http/protobuf` is supported
+- Gzip: Enable compression to reduce bandwidth (recommended: enabled)
+- Headers: Optional authentication headers (e.g., `Authorization`, `X-API-Key`)
+
+Logs are sent as OTLP LogRecord protobuf messages following the [OpenTelemetry Logs specification](https://opentelemetry.io/docs/specs/otel/logs/).
+
+<Admonition type="note">
+
+Ensure your OTLP endpoint is configured to accept logs at the `/v1/logs` path with `application/x-protobuf` content type.
+
+</Admonition>
+
+<Accordion
+  type="default"
+  openBehaviour="multiple"
+>
+    <AccordionItem
+      header="OpenTelemetry Collector Example"
+      id="otel-collector"
+    >
+
+To receive Supabase logs with the OpenTelemetry Collector, configure an OTLP HTTP receiver:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+
+exporters:
+  logging:
+    loglevel: debug
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]
+```
+
+Then create a log drain in [Supabase dashboard](/dashboard/project/_/settings/log-drains) with:
+- Endpoint: `https://your-collector:4318/v1/logs`
+- Add authentication headers as needed for your setup
+
+    </AccordionItem>
+
+    <AccordionItem
+      header="Authentication Examples"
+      id="auth"
+    >
+
+Different OTLP platforms use different authentication methods. Add headers accordingly:
+
+**API Key Authentication:**
+```
+X-API-Key: your-api-key
+```
+
+**Bearer Token:**
+```
+Authorization: Bearer your-token
+```
+
+**Basic Authentication:**
+```
+Authorization: Basic base64(username:password)
+```
+
+Refer to your observability platform's documentation for specific authentication requirements.
+
+    </AccordionItem>
+
+</Accordion>
 
 ## Pricing
 

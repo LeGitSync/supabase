@@ -54,6 +54,7 @@ const LogDrainsSettings: NextPageWithLayout = () => {
   const sentryEnabled = useFlag('SentryLogDrain')
   const s3Enabled = useFlag('S3logdrain')
   const axiomEnabled = useFlag('axiomLogDrain')
+  const otlpEnabled = useFlag('otlpLogDrain')
 
   const { data: logDrains } = useLogDrainsQuery(
     { ref },

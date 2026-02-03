@@ -40,7 +40,12 @@ import { InfoTooltip } from 'ui-patterns/info-tooltip'
 import { z } from 'zod'
 
 import { urlRegex } from '../Auth/Auth.constants'
-import { DATADOG_REGIONS, LOG_DRAIN_TYPES, LogDrainType } from './LogDrains.constants'
+import {
+  DATADOG_REGIONS,
+  LOG_DRAIN_TYPES,
+  LogDrainType,
+  OTLP_PROTOCOLS,
+} from './LogDrains.constants'
 
 const FORM_ID = 'log-drain-destination-form'
 
@@ -111,6 +116,19 @@ const formUnion = z.discriminatedUnion('type', [
     type: z.literal('axiom'),
     api_token: z.string().min(1, { message: 'API token is required' }),
     dataset_name: z.string().min(1, { message: 'Dataset name is required' }),
+  }),
+  z.object({
+    type: z.literal('otlp'),
+    endpoint: z
+      .string()
+      .min(1, { message: 'OTLP endpoint is required' })
+      .refine(
+        (url) => url.startsWith('http://') || url.startsWith('https://'),
+        'OTLP endpoint must start with http:// or https://'
+      ),
+    protocol: z.string().optional().default('http/protobuf'),
+    gzip: z.boolean().optional().default(true),
+    headers: z.record(z.string(), z.string()).optional(),
   }),
 ])
 
@@ -183,6 +201,7 @@ export function LogDrainDestinationSheetForm({
   const sentryEnabled = useFlag('SentryLogDrain')
   const s3Enabled = useFlag('S3logdrain')
   const axiomEnabled = useFlag('axiomLogDrain')
+  const otlpEnabled = useFlag('otlpLogDrain')
 
   const { ref } = useParams()
   const { data: logDrains } = useLogDrainsQuery({
@@ -215,6 +234,8 @@ export function LogDrainDestinationSheetForm({
       batch_timeout: defaultConfig?.batch_timeout ?? 3000,
       dataset_name: defaultConfig?.dataset_name || '',
       api_token: defaultConfig?.api_token || '',
+      endpoint: defaultConfig?.endpoint || '',
+      protocol: defaultConfig?.protocol || 'http/protobuf',
     },
   })
 
@@ -263,6 +284,9 @@ export function LogDrainDestinationSheetForm({
     }
     if (type === 'loki') {
       return 'Set custom headers when draining logs to the Loki HTTP(S) endpoint'
+    }
+    if (type === 'otlp') {
+      return 'Set custom headers for OTLP authentication (e.g., Authorization, X-API-Key)'
     }
     return ''
   }
@@ -592,13 +616,74 @@ export function LogDrainDestinationSheetForm({
                     />
                   </div>
                 )}
+                {type === 'otlp' && (
+                  <>
+                    <div className="grid gap-4 px-content">
+                      <LogDrainFormItem
+                        type="url"
+                        value="endpoint"
+                        label="OTLP Endpoint"
+                        placeholder="https://otlp.example.com:4318/v1/logs"
+                        formControl={form.control}
+                        description="The HTTP endpoint for OTLP log ingestion (typically ends with /v1/logs)"
+                      />
+                      <FormField_Shadcn_
+                        name="protocol"
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItemLayout
+                            layout="horizontal"
+                            label="Protocol"
+                            description="Only HTTP with Protocol Buffers is currently supported"
+                          >
+                            <FormControl_Shadcn_>
+                              <Select_Shadcn_ value={field.value} onValueChange={field.onChange}>
+                                <SelectTrigger_Shadcn_ className="col-span-3">
+                                  <SelectValue_Shadcn_ placeholder="Select protocol" />
+                                </SelectTrigger_Shadcn_>
+                                <SelectContent_Shadcn_>
+                                  <SelectGroup_Shadcn_>
+                                    <SelectLabel_Shadcn_>Protocol</SelectLabel_Shadcn_>
+                                    {OTLP_PROTOCOLS.map((proto) => (
+                                      <SelectItem_Shadcn_ key={proto.value} value={proto.value}>
+                                        {proto.label}
+                                      </SelectItem_Shadcn_>
+                                    ))}
+                                  </SelectGroup_Shadcn_>
+                                </SelectContent_Shadcn_>
+                              </Select_Shadcn_>
+                            </FormControl_Shadcn_>
+                          </FormItemLayout>
+                        )}
+                      />
+                    </div>
+
+                    <FormField_Shadcn_
+                      control={form.control}
+                      name="gzip"
+                      render={({ field }) => (
+                        <FormItem_Shadcn_ className="space-y-2 px-4">
+                          <div className="flex gap-2 items-center">
+                            <FormControl_Shadcn_>
+                              <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl_Shadcn_>
+                            <FormLabel_Shadcn_ className="text-base">Gzip Compression</FormLabel_Shadcn_>
+                            <InfoTooltip align="start">
+                              Enable gzip compression for log data sent to the OTLP endpoint.
+                            </InfoTooltip>
+                          </div>
+                        </FormItem_Shadcn_>
+                      )}
+                    />
+                  </>
+                )}
                 <FormMessage_Shadcn_ />
               </div>
             </form>
           </Form_Shadcn_>
 
           {/* This form needs to be outside the <Form_Shadcn_> */}
-          {(type === 'webhook' || type === 'loki') && (
+          {(type === 'webhook' || type === 'loki' || type === 'otlp') && (
             <>
               <div className="border-t mt-4">
                 <div className="px-content pt-2 pb-3 border-b bg-background-alternative-200">
