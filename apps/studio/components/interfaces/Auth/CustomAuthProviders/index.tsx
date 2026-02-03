@@ -18,7 +18,7 @@ const CustomAuthProviders = () => {
   const promptProPlanUpgrade = IS_PLATFORM && !isProPlanAndUp
 
   return (
-    <PageSection>
+    <PageSection id="custom-providers">
       <PageSectionMeta>
         <PageSectionSummary>
           <PageSectionTitle>Custom Providers</PageSectionTitle>
