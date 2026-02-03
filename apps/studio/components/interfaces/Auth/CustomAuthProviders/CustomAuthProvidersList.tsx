@@ -1,0 +1,390 @@
+import { useParams } from 'common'
+import AlertError from 'components/ui/AlertError'
+import { ButtonTooltip } from 'components/ui/ButtonTooltip'
+import { FilterPopover } from 'components/ui/FilterPopover'
+import { useAuthConfigQuery } from 'data/auth/auth-config-query'
+import { Edit, MoreVertical, Plus, Search, Trash, X } from 'lucide-react'
+import { parseAsBoolean, parseAsStringLiteral, useQueryState } from 'nuqs'
+import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
+import {
+  Badge,
+  Button,
+  Card,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadSort,
+  TableHeader,
+  TableRow,
+} from 'ui'
+import { GenericSkeletonLoader } from 'ui-patterns/ShimmeringLoader'
+
+import { CreateOrUpdateCustomProviderSheet } from './CreateOrUpdateCustomProviderSheet'
+import { DeleteCustomProviderModal } from './DeleteCustomProviderModal'
+import { NewCustomProviderBanner } from './NewCustomProviderBanner'
+import type { CustomProvider } from './customProviders.types'
+import {
+  CUSTOM_PROVIDER_ENABLED_OPTIONS,
+  CUSTOM_PROVIDER_TYPE_OPTIONS,
+  MOCK_CUSTOM_PROVIDERS,
+  filterCustomProviders,
+} from './customProviders.utils'
+
+const CUSTOM_PROVIDERS_SORT_VALUES = [
+  'name:asc',
+  'name:desc',
+  'identifier:asc',
+  'identifier:desc',
+  'provider_type:asc',
+  'provider_type:desc',
+  'created_at:asc',
+  'created_at:desc',
+] as const
+
+type CustomProvidersSort = (typeof CUSTOM_PROVIDERS_SORT_VALUES)[number]
+type CustomProvidersSortColumn = CustomProvidersSort extends `${infer Column}:${string}`
+  ? Column
+  : unknown
+type CustomProvidersSortOrder = CustomProvidersSort extends `${string}:${infer Order}`
+  ? Order
+  : unknown
+
+export const CustomAuthProvidersList = () => {
+  const { ref: projectRef } = useParams()
+  const { data: _authConfig, isPending: isAuthConfigLoading } = useAuthConfigQuery({ projectRef })
+  const isCustomProvidersEnabled = true
+  // const isCustomProvidersEnabled = !!authConfig?.OAUTH_CUSTOM_PROVIDERS_ENABLED
+  const [newCustomProvider, setNewCustomProvider] = useState<
+    (CustomProvider & { client_secret?: string }) | undefined
+  >(undefined)
+  const [selectedProviderToEdit, setSelectedProviderToEdit] = useState<string | null>(null)
+  const [selectedProviderToDelete, setSelectedProviderToDelete] = useState<string | null>(null)
+  const [filteredProviderTypes, setFilteredProviderTypes] = useState<string[]>([])
+  const [filteredEnabledStatuses, setFilteredEnabledStatuses] = useState<string[]>([])
+
+  // Mock data - in real implementation this would come from API
+  const customProviders = useMemo(() => MOCK_CUSTOM_PROVIDERS, [])
+  const isLoading = false
+  const isError = false
+  const error = null
+
+  const [showCreateSheet, setShowCreateSheet] = useQueryState(
+    'new',
+    parseAsBoolean.withDefault(false).withOptions({ history: 'push', clearOnDefault: true })
+  )
+
+  // Prevent opening the create sheet if custom providers are disabled
+  useEffect(() => {
+    if (!isCustomProvidersEnabled && showCreateSheet) {
+      setShowCreateSheet(false)
+    }
+  }, [showCreateSheet, setShowCreateSheet])
+
+  const [filterString, setFilterString] = useState<string>('')
+
+  const [sort, setSort] = useQueryState(
+    'sort',
+    parseAsStringLiteral<CustomProvidersSort>(CUSTOM_PROVIDERS_SORT_VALUES).withDefault('name:asc')
+  )
+
+  const providerToEdit = useMemo(
+    () => customProviders.find((p) => p.id === selectedProviderToEdit),
+    [customProviders, selectedProviderToEdit]
+  )
+
+  const providerToDelete = useMemo(
+    () => customProviders.find((p) => p.id === selectedProviderToDelete),
+    [customProviders, selectedProviderToDelete]
+  )
+
+  const filteredAndSortedCustomProviders = useMemo(() => {
+    const filtered = filterCustomProviders({
+      providers: customProviders,
+      searchString: filterString,
+      providerTypes: filteredProviderTypes,
+      enabledStatuses: filteredEnabledStatuses,
+    })
+
+    const [sortCol, sortOrder] = sort.split(':') as [
+      CustomProvidersSortColumn,
+      CustomProvidersSortOrder,
+    ]
+    const orderMultiplier = sortOrder === 'asc' ? 1 : -1
+
+    return filtered.sort((a, b) => {
+      if (sortCol === 'name') {
+        return a.name.localeCompare(b.name) * orderMultiplier
+      }
+      if (sortCol === 'identifier') {
+        return a.identifier.localeCompare(b.identifier) * orderMultiplier
+      }
+      if (sortCol === 'provider_type') {
+        return a.provider_type.localeCompare(b.provider_type) * orderMultiplier
+      }
+      if (sortCol === 'created_at') {
+        return (
+          (new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) * orderMultiplier
+        )
+      }
+      return 0
+    })
+  }, [customProviders, filterString, filteredProviderTypes, filteredEnabledStatuses, sort])
+
+  const hasActiveFilters =
+    filterString.length > 0 ||
+    filteredProviderTypes.length > 0 ||
+    filteredEnabledStatuses.length > 0
+
+  const handleResetFilters = () => {
+    setFilterString('')
+    setFilteredProviderTypes([])
+    setFilteredEnabledStatuses([])
+  }
+
+  const handleSortChange = (column: CustomProvidersSortColumn) => {
+    const [currentCol, currentOrder] = sort.split(':') as [
+      CustomProvidersSortColumn,
+      CustomProvidersSortOrder,
+    ]
+    if (currentCol === column) {
+      // Cycle through: asc -> desc -> no sort (default)
+      if (currentOrder === 'asc') {
+        setSort(`${column}:desc` as CustomProvidersSort)
+      } else {
+        // Reset to default sort (name:asc)
+        setSort('name:asc')
+      }
+    } else {
+      // New column, start with asc
+      setSort(`${column}:asc` as CustomProvidersSort)
+    }
+  }
+
+  const handleDeleteProvider = (_providerId: string) => {
+    // Mock implementation
+    toast.success('Provider deleted successfully')
+    setSelectedProviderToDelete(null)
+  }
+
+  const isCreateMode = showCreateSheet && isCustomProvidersEnabled
+  const isEditMode = !!providerToEdit
+  const isCreateOrUpdateSheetVisible = isCreateMode || isEditMode
+
+  if (isAuthConfigLoading || (isCustomProvidersEnabled && isLoading)) {
+    return <GenericSkeletonLoader />
+  }
+
+  if (isError) {
+    return <AlertError error={error} subject="Failed to retrieve OAuth Server apps" />
+  }
+
+  return (
+    <>
+      <div className="flex flex-col gap-y-4">
+        {newCustomProvider?.client_secret && (
+          <NewCustomProviderBanner
+            provider={newCustomProvider}
+            onClose={() => setNewCustomProvider(undefined)}
+          />
+        )}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 flex-wrap">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-2">
+            <Input
+              placeholder="Search custom providers"
+              size="tiny"
+              icon={<Search />}
+              value={filterString}
+              className="w-full lg:w-52"
+              onChange={(e) => setFilterString(e.target.value)}
+            />
+            <FilterPopover
+              name="Provider Type"
+              options={CUSTOM_PROVIDER_TYPE_OPTIONS}
+              labelKey="name"
+              valueKey="value"
+              iconKey="icon"
+              activeOptions={filteredProviderTypes}
+              labelClass="text-xs text-foreground-light"
+              maxHeightClass="h-[200px]"
+              className="w-52"
+              onSaveFilters={setFilteredProviderTypes}
+            />
+            <FilterPopover
+              name="Status"
+              options={CUSTOM_PROVIDER_ENABLED_OPTIONS}
+              labelKey="name"
+              valueKey="value"
+              iconKey="icon"
+              activeOptions={filteredEnabledStatuses}
+              labelClass="text-xs text-foreground-light"
+              maxHeightClass="h-[190px]"
+              className="w-52"
+              onSaveFilters={setFilteredEnabledStatuses}
+            />
+            {hasActiveFilters && (
+              <Button
+                type="default"
+                size="tiny"
+                className="px-1"
+                icon={<X />}
+                onClick={handleResetFilters}
+              />
+            )}
+          </div>
+          <div className="flex items-center gap-x-2">
+            <ButtonTooltip
+              disabled={!isCustomProvidersEnabled}
+              icon={<Plus />}
+              onClick={() => setShowCreateSheet(true)}
+              className="flex-grow"
+              tooltip={{
+                content: {
+                  side: 'bottom',
+                  text: !isCustomProvidersEnabled
+                    ? 'Custom providers must be enabled in settings'
+                    : undefined,
+                },
+              }}
+            >
+              New Provider
+            </ButtonTooltip>
+          </div>
+        </div>
+
+        <div className="w-full overflow-hidden overflow-x-auto">
+          <Card className="@container">
+            <Table containerProps={{ stickyLastColumn: true }}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>
+                    <TableHeadSort column="name" currentSort={sort} onSortChange={handleSortChange}>
+                      Name
+                    </TableHeadSort>
+                  </TableHead>
+                  <TableHead>
+                    <TableHeadSort
+                      column="identifier"
+                      currentSort={sort}
+                      onSortChange={handleSortChange}
+                    >
+                      Identifier
+                    </TableHeadSort>
+                  </TableHead>
+                  <TableHead>
+                    <TableHeadSort
+                      column="provider_type"
+                      currentSort={sort}
+                      onSortChange={handleSortChange}
+                    >
+                      Type
+                    </TableHeadSort>
+                  </TableHead>
+                  <TableHead>Enabled</TableHead>
+                  <TableHead className="w-8 px-0">
+                    <div className="!bg-200 px-4 w-full h-full flex items-center border-l @[944px]:border-l-0" />
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAndSortedCustomProviders.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <p className="text-foreground-lighter">No custom providers found</p>
+                    </TableCell>
+                  </TableRow>
+                )}
+                {filteredAndSortedCustomProviders.length > 0 &&
+                  filteredAndSortedCustomProviders.map((provider) => (
+                    <TableRow key={provider.id} className="w-full">
+                      <TableCell className="w-48 max-w-48 flex" title={provider.name}>
+                        <Button
+                          type="text"
+                          className="text-link-table-cell text-sm p-0 hover:bg-transparent title [&>span]:!w-full"
+                          onClick={() => setSelectedProviderToEdit(provider.id)}
+                          title={provider.name}
+                        >
+                          {provider.name}
+                        </Button>
+                      </TableCell>
+                      <TableCell title={provider.identifier}>
+                        <Badge className="font-mono">{provider.identifier}</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-foreground-light max-w-28 uppercase">
+                        {provider.provider_type}
+                      </TableCell>
+                      <TableCell className="text-xs text-foreground-light max-w-28">
+                        <Badge variant={provider.enabled ? 'success' : 'secondary'}>
+                          {provider.enabled ? 'Enabled' : 'Disabled'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-20 bg-surface-100 @[944px]:hover:bg-surface-200 px-6">
+                        <div className="absolute top-0 right-0 left-0 bottom-0 flex items-center justify-center border-l @[944px]:border-l-0">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button type="default" className="px-1" icon={<MoreVertical />} />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent side="bottom" align="end" className="w-48">
+                              <DropdownMenuItem
+                                className="space-x-2"
+                                onClick={() => {
+                                  setSelectedProviderToEdit(provider.id)
+                                }}
+                              >
+                                <Edit size={12} />
+                                <p>Update</p>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="space-x-2"
+                                onClick={() => setSelectedProviderToDelete(provider.id)}
+                              >
+                                <Trash size={12} />
+                                <p>Delete</p>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </div>
+      </div>
+
+      <CreateOrUpdateCustomProviderSheet
+        visible={isCreateOrUpdateSheetVisible}
+        providerToEdit={providerToEdit}
+        onSuccess={(provider) => {
+          const isCreating = !providerToEdit
+          setShowCreateSheet(false)
+          setSelectedProviderToEdit(null)
+          // Show banner for new providers with client secret
+          if (isCreating) {
+            // In mock mode, add a fake client_secret for the banner
+            setNewCustomProvider({ ...provider, client_secret: 'mock_secret_' + Date.now() })
+          }
+        }}
+        onCancel={() => {
+          setShowCreateSheet(false)
+          setSelectedProviderToEdit(null)
+        }}
+      />
+
+      <DeleteCustomProviderModal
+        visible={!!providerToDelete}
+        selectedProvider={providerToDelete}
+        setVisible={setSelectedProviderToDelete}
+        onDelete={handleDeleteProvider}
+        isLoading={false}
+      />
+    </>
+  )
+}
