@@ -15,7 +15,7 @@ import {
 } from '../../lib/schemas/auth'
 import { AlertTriangle, ChevronRight, Mail, Phone, User } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
-import { z } from 'zod'
+import { z, type ZodTypeAny } from 'zod'
 import { useSheetNavigation } from '@/contexts/SheetNavigationContext'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
@@ -29,18 +29,18 @@ function ProviderSettingsView({
   onSuccess,
 }: {
   projectRef: string
-  schema: z.ZodObject<any> | z.ZodEffects<z.ZodObject<any>>
+  schema: ZodTypeAny
   title: string
   initialValues: any
   onSuccess: () => void
 }) {
   const { mutate: updateAuthConfig, isPending: isUpdatingConfig } = useUpdateAuthConfig()
 
-  const actualSchema = 'shape' in schema ? schema : (schema._def.schema as z.ZodObject<any>)
+  const actualSchema = 'shape' in schema ? schema : ((schema as any)._def.schema as z.ZodObject<any>)
 
   const handleUpdateAuthConfig = (formData: z.infer<typeof actualSchema>) => {
     const payload = Object.fromEntries(
-      Object.entries(formData).filter(([_, value]) => value !== undefined)
+      Object.entries(formData as Record<string, any>).filter(([_, value]) => value !== undefined)
     )
 
     if (Object.keys(payload).length === 0) {
@@ -81,7 +81,7 @@ function ProviderSettingsView({
     <div className="w-full max-w-3xl mx-auto p-6 pt-4 lg:p-12 lg:pt-12">
       <h2 className="lg:text-xl font-semibold mb-2 lg:mb-4">{title}</h2>
       <DynamicForm
-        schema={actualSchema}
+        schema={actualSchema as z.ZodObject<any>}
         onSubmit={handleUpdateAuthConfig}
         isLoading={isUpdatingConfig}
         initialValues={formInitialValues}
@@ -121,7 +121,7 @@ export function AuthManager({ projectRef }: { projectRef: string }) {
     name: string
     icon: React.ReactNode
     description: string
-    schema: z.ZodObject<any> | z.ZodEffects<z.ZodObject<any>>
+    schema: ZodTypeAny
   }[] = [
     {
       icon: <Mail className="h-4 w-4 text-muted-foreground" />,
@@ -144,7 +144,7 @@ export function AuthManager({ projectRef }: { projectRef: string }) {
   ]
 
   const handleProviderClick = useCallback(
-    (provider: { name: string; schema: z.ZodObject<any> | z.ZodEffects<z.ZodObject<any>> }) => {
+    (provider: { name: string; schema: ZodTypeAny }) => {
       push({
         title: `${provider.name} Provider Settings`,
         component: (

@@ -84,7 +84,7 @@ export function DynamicForm<T extends z.ZodRawShape = z.ZodRawShape>({
 
   const defaultValues = Object.keys(schema.shape).reduce(
     (acc, key) => {
-      const originalFieldSchema = schema.shape[key]
+      const originalFieldSchema = schema.shape[key] as ZodTypeAny | undefined
       if (typeof originalFieldSchema === 'undefined') {
         throw new Error(
           `Schema error: schema.shape['${key}'] is undefined. Check schema definition.`
@@ -137,7 +137,7 @@ export function DynamicForm<T extends z.ZodRawShape = z.ZodRawShape>({
   )
 
   const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: defaultValues as any,
   })
 
@@ -147,11 +147,11 @@ export function DynamicForm<T extends z.ZodRawShape = z.ZodRawShape>({
       const schemaKeys = Object.keys(schema.shape)
       const processedInitialValues = schemaKeys.reduce(
         (acc, key) => {
-          const fieldDefFromSchema = schema.shape[key]
+          const fieldDefFromSchema = schema.shape[key] as ZodTypeAny | undefined
           if (typeof fieldDefFromSchema === 'undefined') {
             throw new Error(`Schema error in useEffect: schema.shape['${key}'] is undefined.`)
           }
-          const value = initialValues.hasOwnProperty(key) ? initialValues[key] : undefined
+          const value = initialValues.hasOwnProperty(key) ? (initialValues as any)[key] : undefined
           const baseFieldType = unwrapZodType(fieldDefFromSchema)
 
           // Support both old (typeName) and new (type) Zod formats
@@ -404,7 +404,7 @@ export function DynamicForm<T extends z.ZodRawShape = z.ZodRawShape>({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         {Object.keys(schema.shape).map((fieldName) =>
-          renderField(fieldName, schema.shape[fieldName])
+          renderField(fieldName, schema.shape[fieldName] as ZodTypeAny)
         )}
         <div className="pt-6">
           <Button type="submit" disabled={isLoading}>

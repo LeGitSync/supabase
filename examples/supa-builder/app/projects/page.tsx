@@ -41,16 +41,14 @@ export default async function ProjectsPage() {
 
   const projects = result.data || []
 
-  // Check if user is admin (simple check - look at first project's org)
-  // In production, you might want to fetch this separately
-  let isAdmin = false
-  if (projects.length > 0) {
-    const { data: role } = await supabase.rpc('get_user_role', {
-      p_user_id: user.id,
-      p_organization_id: projects[0].organization_id,
-    })
-    isAdmin = role === 'admin'
-  }
+  // Get user role directly from user_roles table
+  const { data: userRole } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single()
+
+  const isAdmin = userRole?.role === 'admin'
 
   return (
     <div className="min-h-screen bg-[#0E0E0E]">

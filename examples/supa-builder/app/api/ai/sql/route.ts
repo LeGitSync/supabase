@@ -4,9 +4,19 @@ import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import createClient from 'openapi-fetch'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Lazy initialization to avoid build-time errors
+let openaiClient: OpenAI | null = null
+function getOpenAIClient() {
+  if (!openaiClient) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY environment variable is not set')
+    }
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+  }
+  return openaiClient
+}
 
 const client = createClient<paths>({
   baseUrl: 'https://api.supabase.com',
@@ -84,6 +94,7 @@ export async function POST(request: Request) {
     const systemPrompt = `You are an expert SQL assistant. Given the following database schema, write a SQL query that answers the user's question. Return only the SQL query, do not include any explanations or markdown.\n\nSchema:\n${formattedSchema}`
 
     // 3. Call OpenAI to generate SQL using responses.create (plain text output)
+    const openai = getOpenAIClient()
     const response = await openai.responses.create({
       model: 'gpt-4.1',
       instructions: systemPrompt, // Use systemPrompt as instructions

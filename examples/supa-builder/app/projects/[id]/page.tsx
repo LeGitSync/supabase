@@ -43,12 +43,14 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
   const project = result.data!
 
-  // Check if user is admin
-  const { data: role } = await supabase.rpc('get_user_role', {
-    p_user_id: user.id,
-    p_organization_id: project.organization_id,
-  })
-  const isAdmin = role === 'admin'
+  // Get user role directly from user_roles table
+  const { data: userRole } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single()
+
+  const isAdmin = userRole?.role === 'admin'
 
   const getStatusBadge = (status: typeof project.status) => {
     const styles = {
