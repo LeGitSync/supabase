@@ -62,7 +62,9 @@ function ChangelogPage({ changelog, pageInfo, restPage }: ChangelogPageProps) {
       if (end) {
         params.set('next', end)
       }
-      params.set('restPage', String(currentRestPage + 1))
+      // Cap restPage at 10 to avoid unnecessary API calls after all oldReleases are exhausted
+      const nextRestPage = Math.min(currentRestPage + 1, 10)
+      params.set('restPage', String(nextRestPage))
 
       const response = await fetch(`/api/changelog?${params.toString()}`)
       if (!response.ok) {
@@ -71,8 +73,8 @@ function ChangelogPage({ changelog, pageInfo, restPage }: ChangelogPageProps) {
 
       const data = await response.json()
       setEntries((prev) => prev.concat(data.changelog ?? []))
-      setCurrentPageInfo(data.pageInfo ?? currentPageInfo)
-      setCurrentRestPage(data.restPage ?? currentRestPage + 1)
+      setCurrentPageInfo(data.pageInfo ?? { hasNextPage: false, endCursor: null })
+      setCurrentRestPage(data.restPage ?? nextRestPage)
     } catch (error) {
       console.error(error)
     } finally {
