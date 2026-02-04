@@ -1,8 +1,10 @@
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import dayjs from 'dayjs'
 import { useEffect, useRef } from 'react'
 
-import { IS_PLATFORM, useParams } from 'common'
+import { IS_PLATFORM, useFlag, useParams } from 'common'
+import { ProjectUsageSection as ProjectUsageSectionV1 } from 'components/interfaces/Home/ProjectUsageSection'
 import { SortableSection } from 'components/interfaces/HomeNew/SortableSection'
 import { TopSection } from 'components/interfaces/HomeNew/TopSection'
 import { ScaffoldContainer, ScaffoldSection } from 'components/layouts/Scaffold'
@@ -17,7 +19,7 @@ import { AdvisorSection } from './AdvisorSection'
 import { CustomReportSection } from './CustomReportSection'
 import { type GettingStartedState } from './GettingStarted/GettingStarted.types'
 import { GettingStartedSection } from './GettingStarted/GettingStartedSection'
-import { ProjectUsageSection } from './ProjectUsageSection'
+import { ProjectUsageSection as ProjectUsageSectionV2 } from './ProjectUsageSection'
 
 export const HomeV2 = () => {
   const { enableBranching } = useParams()
@@ -26,8 +28,13 @@ export const HomeV2 = () => {
   const { data: organization } = useSelectedOrganizationQuery()
   const { mutate: sendEvent } = useSendEventMutation()
 
+  const showHomepageUsageV2 = useFlag('newHomepageUsageV2')
+
+  const isMatureProject = dayjs(project?.inserted_at).isBefore(dayjs().subtract(10, 'day'))
+
   const hasShownEnableBranchingModalRef = useRef(false)
   const isPaused = project?.status === PROJECT_STATUS.INACTIVE
+  const isComingUp = project?.status === PROJECT_STATUS.COMING_UP
 
   const [sectionOrder, setSectionOrder] = useLocalStorage<string[]>(
     `home-section-order-${project?.ref || 'default'}`,
@@ -38,6 +45,8 @@ export const HomeV2 = () => {
     `home-getting-started-${project?.ref || 'default'}`,
     'empty'
   )
+
+  const UsageSection = showHomepageUsageV2 ? ProjectUsageSectionV2 : ProjectUsageSectionV1
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
@@ -85,7 +94,6 @@ export const HomeV2 = () => {
           <TopSection />
         </ScaffoldSection>
       </ScaffoldContainer>
-
       {!isPaused && (
         <ScaffoldContainer size="large">
           <ScaffoldSection isFullWidth className="gap-16 pb-32">
@@ -99,13 +107,20 @@ export const HomeV2 = () => {
                 {sectionOrder.map((id) => {
                   if (IS_PLATFORM && id === 'usage') {
                     return (
-                      <SortableSection key={id} id={id}>
-                        <ProjectUsageSection />
-                      </SortableSection>
+                      <div key={id} className={cn(isComingUp && 'opacity-60 pointer-events-none')}>
+                        <SortableSection id={id}>
+                          <UsageSection />
+                        </SortableSection>
+                      </div>
                     )
                   }
-                  if (id === 'getting-started') {
-                    return gettingStartedState === 'hidden' ? null : (
+                  if (
+                    id === 'getting-started' &&
+                    !isMatureProject &&
+                    project &&
+                    gettingStartedState !== 'hidden'
+                  ) {
+                    return (
                       <SortableSection key={id} id={id}>
                         <GettingStartedSection
                           value={gettingStartedState}
@@ -116,16 +131,20 @@ export const HomeV2 = () => {
                   }
                   if (id === 'advisor') {
                     return (
-                      <SortableSection key={id} id={id}>
-                        <AdvisorSection />
-                      </SortableSection>
+                      <div key={id} className={cn(isComingUp && 'opacity-60 pointer-events-none')}>
+                        <SortableSection id={id}>
+                          <AdvisorSection showEmptyState={isComingUp} />
+                        </SortableSection>
+                      </div>
                     )
                   }
                   if (id === 'custom-report') {
                     return (
-                      <SortableSection key={id} id={id}>
-                        <CustomReportSection />
-                      </SortableSection>
+                      <div key={id} className={cn(isComingUp && 'opacity-60 pointer-events-none')}>
+                        <SortableSection id={id}>
+                          <CustomReportSection />
+                        </SortableSection>
+                      </div>
                     )
                   }
                 })}

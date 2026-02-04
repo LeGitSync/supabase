@@ -48,7 +48,7 @@ export const EdgeFunctionRenderer = ({
   const {
     mutate: deployFunction,
     error: deployError,
-    isLoading: isDeploying,
+    isPending: isDeploying,
   } = useEdgeFunctionDeployMutation({
     onSuccess: () => {
       setIsDeployed(true)
