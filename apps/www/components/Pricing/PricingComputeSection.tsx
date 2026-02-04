@@ -10,16 +10,12 @@ import Panel from '../Panel'
 import ComputePricingTable from './ComputePricingTable'
 import PricingComputeAnimation from './PricingComputeAnimation'
 import ComputePricingCalculator from './ComputePricingCalculator'
-import NewComputePricingCalculator from './NewComputePricingCalculator'
 
 const PricingComputeSection = () => {
   const ref = useRef<HTMLDivElement>(null)
   const [showTable, setShowTable] = useState(false)
   const { width } = useWindowSize()
   const [height, setHeight] = useState(ref?.current?.clientHeight)
-
-  // Default to Pro plan for the calculator
-  const activePlan = { name: 'Pro', price: 25 }
 
   useEffect(() => {
     setHeight(ref?.current?.clientHeight)
@@ -56,7 +52,7 @@ const PricingComputeSection = () => {
           </div>
         </div>
         <div className="relative col-span-2 h-full w-full p-4 lg:p-8">
-          {1 < 2 ? <NewComputePricingCalculator activePlan={activePlan} /> : <ComputePricingCalculator  />}
+          <ComputePricingCalculator />
         </div>
       </div>
       <hr className="border-0 border-t" />
