@@ -2,13 +2,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import { executeSql } from 'data/sql/execute-sql-query'
+import { API_ACCESS_ROLES } from '@/lib/data-api-types'
 import type { UseCustomMutationOptions } from 'types'
 import type { ConnectionVars } from '../common.types'
 import { invalidateFunctionPrivilegesQuery } from './function-privileges-query'
 import { ident } from '@supabase/pg-meta/src/pg-format'
 
-export const API_ACCESS_ROLES = ['anon', 'authenticated'] as const
-export type ApiAccessRole = (typeof API_ACCESS_ROLES)[number]
 
 export type FunctionApiAccessPrivilegesVariables = ConnectionVars & {
   functionSchema: string

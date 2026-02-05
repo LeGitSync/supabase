@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { API_ACCESS_ROLES, type ApiAccessRole } from '@/lib/data-api-types'
 import {
   useFunctionPrivilegesQuery,
   type FunctionPrivilegesData,
@@ -15,9 +16,6 @@ import type { UseCustomQueryOptions } from '@/types'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const STABLE_EMPTY_ARRAY: any[] = []
 const STABLE_EMPTY_OBJECT = {}
-
-export const API_ACCESS_ROLES = ['anon', 'authenticated'] as const
-export type ApiAccessRole = (typeof API_ACCESS_ROLES)[number]
 
 export type FunctionApiPrivilegesByRole = Record<ApiAccessRole, boolean>
 
