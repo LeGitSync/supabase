@@ -54,7 +54,7 @@ export default defineConfig({
   },
   // Due to rate API rate limits run tests in serial mode on platform.
   fullyParallel: !env.IS_PLATFORM,
-  workers: env.IS_PLATFORM ? 1 : 4,
+  workers: env.IS_PLATFORM ? 1 : 3,
   use: {
     baseURL: env.STUDIO_URL,
     screenshot: 'off',
