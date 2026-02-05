@@ -403,7 +403,7 @@ By default, [KotlinX Serialization](https://github.com/Kotlin/kotlinx.serializat
 <RefSubLayout.EducationRow>
     <RefSubLayout.Details>
 
-        supabase-kt uses the Data API to query and mutate your Postgres data. You first need to grant Data API roles permissions to access your tables.
+        supabase-kt uses the Data API to query and mutate your Postgres data. You first need to grant Data API roles permissions to access your tables and functions.
 
         In the Table Editor, enable the **Data API Access** toggle when creating or editing a table.
 
@@ -414,8 +414,11 @@ By default, [KotlinX Serialization](https://github.com/Kotlin/kotlinx.serializat
     <RefSubLayout.Examples>
 
         ```sql
-        -- Grant access to the anon and authenticated roles
+        -- Grant access to tables
         grant all on public.your_table to anon, authenticated;
+
+        -- Grant access to functions
+        grant execute on function public.your_function to anon, authenticated;
         ```
 
     </RefSubLayout.Examples>

@@ -91,7 +91,7 @@ custom_edit_url: https://github.com/supabase/supabase/edit/master/web/spec/supab
 <RefSubLayout.EducationRow>
   <RefSubLayout.Details>
 
-    supabase-js uses the Data API to query and mutate your Postgres data. You first need to grant Data API roles permissions to access your tables.
+    supabase-js uses the Data API to query and mutate your Postgres data. You first need to grant Data API roles permissions to access your tables and functions.
 
     In the Table Editor, enable the **Data API Access** toggle when creating or editing a table.
 
@@ -102,8 +102,11 @@ custom_edit_url: https://github.com/supabase/supabase/edit/master/web/spec/supab
   <RefSubLayout.Examples>
 
     ```sql
-    -- Grant access to the anon and authenticated roles
+    -- Grant access to tables
     grant all on public.your_table to anon, authenticated;
+
+    -- Grant access to functions
+    grant execute on function public.your_function to anon, authenticated;
     ```
 
   </RefSubLayout.Examples>
