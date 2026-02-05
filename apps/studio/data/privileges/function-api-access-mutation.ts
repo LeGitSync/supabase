@@ -5,7 +5,7 @@ import { executeSql } from 'data/sql/execute-sql-query'
 import type { UseCustomMutationOptions } from 'types'
 import type { ConnectionVars } from '../common.types'
 import { invalidateFunctionPrivilegesQuery } from './function-privileges-query'
-import { ident, literal } from '@supabase/pg-meta/pg-format'
+import { ident } from '@supabase/pg-meta/src/pg-format'
 
 export const API_ACCESS_ROLES = ['anon', 'authenticated'] as const
 export type ApiAccessRole = (typeof API_ACCESS_ROLES)[number]
