@@ -50,7 +50,7 @@ grant all on public.todos to anon, authenticated;
 To access a table via the Data API, the `anon` and/or `authenticated` roles need the appropriate permissions. When using the Table Editor, ensure the **Enable Data API Access** toggle is on. When using SQL, run a grant statement like:
 
 ```sql
-grant all on public.your_table to anon, authenticated;
+grant all on public.your_table to anon, authenticated, service_role;
 ```
 
 </Admonition>

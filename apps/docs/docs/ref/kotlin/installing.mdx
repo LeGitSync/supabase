@@ -415,10 +415,10 @@ By default, [KotlinX Serialization](https://github.com/Kotlin/kotlinx.serializat
 
         ```sql
         -- Grant access to tables
-        grant all on public.your_table to anon, authenticated;
+        grant all on public.your_table to anon, authenticated, service_role;
 
         -- Grant access to functions
-        grant execute on function public.your_function to anon, authenticated;
+        grant execute on function public.your_function to anon, authenticated, service_role;
         ```
 
     </RefSubLayout.Examples>
