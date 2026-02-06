@@ -3,10 +3,12 @@ import { toast } from 'sonner'
 
 import type { ConnectionVars } from '../common.types'
 import { getFunctionGrantSql, getFunctionRevokeSql } from '../sql/queries/edit-function-permissions'
-import type { FunctionApiPrivilegesByRole } from './function-api-access-query'
+import {
+  FUNCTION_API_ACCESS_ROLES,
+  type FunctionApiPrivilegesByRole,
+} from './function-api-access-query'
 import { invalidateFunctionPrivilegesQuery } from './function-privileges-query'
 import { executeSql } from '@/data/sql/execute-sql-query'
-import { API_ACCESS_ROLES } from '@/lib/data-api-types'
 import type { UseCustomMutationOptions } from '@/types'
 
 export type FunctionApiAccessPrivilegesVariables = ConnectionVars & {
@@ -27,7 +29,7 @@ export async function updateFunctionApiAccessPrivileges({
   const sqlStatements: Array<string> = []
   let addPublicRevokeStatement = false
 
-  for (const role of API_ACCESS_ROLES) {
+  for (const role of FUNCTION_API_ACCESS_ROLES) {
     if (roles[role]) {
       sqlStatements.push(
         getFunctionGrantSql({

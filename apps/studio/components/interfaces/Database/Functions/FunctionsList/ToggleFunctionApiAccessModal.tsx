@@ -15,9 +15,16 @@ import { ConfirmationModal } from 'ui-patterns/Dialogs/ConfirmationModal'
 import type { DatabaseFunction } from '@/data/database-functions/database-functions-query'
 import type {
   FunctionApiAccessData,
+  FunctionApiAccessRole,
   FunctionApiPrivilegesByRole,
 } from '@/data/privileges/function-api-access-query'
 import { useStaticEffectEvent } from '@/hooks/useStaticEffectEvent'
+
+const ROLE_LABELS: Record<FunctionApiAccessRole, string> = {
+  anon: 'anon',
+  authenticated: 'authenticated',
+  service_role: 'service_role',
+}
 
 type AlertConfig = { title: string; description: string }
 
@@ -53,7 +60,7 @@ function getAlertConfig({
 }
 
 interface RoleCheckboxProps {
-  role: 'anon' | 'authenticated'
+  role: FunctionApiAccessRole
   checked: boolean
   onCheckedChange: (checked: boolean) => void
 }
@@ -69,7 +76,7 @@ const RoleCheckbox = ({ role, checked, onCheckedChange }: RoleCheckboxProps) => 
         onCheckedChange={(value) => onCheckedChange(value === true)}
       />
       <Label_Shadcn_ htmlFor={id} className="cursor-pointer">
-        <span className="font-mono text-xs">{role}</span>
+        <span className="font-mono text-xs">{ROLE_LABELS[role]}</span>
       </Label_Shadcn_>
     </div>
   )
@@ -110,7 +117,7 @@ export const ToggleFunctionApiAccessModal = ({
   const currentPrivileges: FunctionApiPrivilegesByRole =
     apiAccessData?.apiAccessType === 'access'
       ? apiAccessData.privileges
-      : { anon: false, authenticated: false }
+      : { anon: false, authenticated: false, service_role: false }
 
   return (
     <ConfigureApiAccessModal
@@ -190,10 +197,14 @@ const ConfigureApiAccessModal = ({
   const [formAuthenticatedEnabled, setFormAuthenticatedEnabled] = useState(
     currentPrivileges.authenticated
   )
+  const [formServiceRoleEnabled, setFormServiceRoleEnabled] = useState(
+    currentPrivileges.service_role
+  )
 
   const syncPrivileges = useStaticEffectEvent(() => {
     setFormAnonEnabled(currentPrivileges.anon)
     setFormAuthenticatedEnabled(currentPrivileges.authenticated)
+    setFormServiceRoleEnabled(currentPrivileges.service_role)
   })
 
   // Reset state when modal opens with new function
@@ -207,7 +218,8 @@ const ConfigureApiAccessModal = ({
   const willEnableAuthenticatedAccess = !currentPrivileges.authenticated && formAuthenticatedEnabled
   const breakingChange =
     (currentPrivileges.anon && !formAnonEnabled) ||
-    (currentPrivileges.authenticated && !formAuthenticatedEnabled)
+    (currentPrivileges.authenticated && !formAuthenticatedEnabled) ||
+    (currentPrivileges.service_role && !formServiceRoleEnabled)
 
   const alertConfig = getAlertConfig({
     breakingChange,
@@ -229,7 +241,11 @@ const ConfigureApiAccessModal = ({
       confirmLabelLoading="Saving..."
       onCancel={onCancel}
       onConfirm={() =>
-        onConfirm({ anon: formAnonEnabled, authenticated: formAuthenticatedEnabled })
+        onConfirm({
+          anon: formAnonEnabled,
+          authenticated: formAuthenticatedEnabled,
+          service_role: formServiceRoleEnabled,
+        })
       }
       loading={isLoading}
       variant={variant}
@@ -254,6 +270,11 @@ const ConfigureApiAccessModal = ({
             role="authenticated"
             checked={formAuthenticatedEnabled}
             onCheckedChange={setFormAuthenticatedEnabled}
+          />
+          <RoleCheckbox
+            role="service_role"
+            checked={formServiceRoleEnabled}
+            onCheckedChange={setFormServiceRoleEnabled}
           />
         </div>
       </div>

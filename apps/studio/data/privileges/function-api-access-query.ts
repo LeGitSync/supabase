@@ -8,7 +8,6 @@ import {
 } from './function-privileges-query'
 import type { ConnectionVars } from '@/data/common.types'
 import { useIsSchemaExposed } from '@/hooks/misc/useIsSchemaExposed'
-import type { ApiAccessRole } from '@/lib/data-api-types'
 import type { Prettify } from '@/lib/type-helpers'
 import type { UseCustomQueryOptions } from '@/types'
 
@@ -18,27 +17,34 @@ import type { UseCustomQueryOptions } from '@/types'
 const STABLE_EMPTY_ARRAY: any[] = []
 const STABLE_EMPTY_OBJECT = Object.freeze({})
 
-export type FunctionApiPrivilegesByRole = Record<ApiAccessRole, boolean>
+// Function-specific roles (includes service_role unlike tables)
+export const FUNCTION_API_ACCESS_ROLES = ['anon', 'authenticated', 'service_role'] as const
+export type FunctionApiAccessRole = (typeof FUNCTION_API_ACCESS_ROLES)[number]
+
+export type FunctionApiPrivilegesByRole = Record<FunctionApiAccessRole, boolean>
+
+const DEFAULT_PRIVILEGES: FunctionApiPrivilegesByRole = {
+  anon: false,
+  authenticated: false,
+  service_role: false,
+}
 
 const getApiPrivilegesByRole = (
   privileges: FunctionPrivilegesData[number]['privileges']
 ): FunctionApiPrivilegesByRole => {
-  const privilegesByRole: FunctionApiPrivilegesByRole = {
-    anon: false,
-    authenticated: false,
-  }
+  const privilegesByRole: FunctionApiPrivilegesByRole = { ...DEFAULT_PRIVILEGES }
 
   privileges.forEach((privilege) => {
     const { grantee, privilege_type } = privilege
     if (privilege_type !== 'EXECUTE') return
 
     if (grantee === 'public') {
-      Object.keys(privilegesByRole).forEach((role) => {
-        privilegesByRole[role as keyof typeof privilegesByRole] = true
+      FUNCTION_API_ACCESS_ROLES.forEach((role) => {
+        privilegesByRole[role] = true
       })
     }
 
-    if (grantee === 'anon' || grantee === 'authenticated') {
+    if (grantee === 'anon' || grantee === 'authenticated' || grantee === 'service_role') {
       privilegesByRole[grantee] = true
     }
   })
@@ -187,14 +193,11 @@ export const useFunctionApiAccessQuery = (
         return
       }
 
-      const functionPrivileges = functionPrivilegesById[functionId] ?? {
-        anon: false,
-        authenticated: false,
-      }
-      const hasAnonOrAuthenticatedPrivileges =
-        functionPrivileges.anon || functionPrivileges.authenticated
+      const functionPrivileges = functionPrivilegesById[functionId] ?? { ...DEFAULT_PRIVILEGES }
+      const hasAnyPrivileges =
+        functionPrivileges.anon || functionPrivileges.authenticated || functionPrivileges.service_role
 
-      resultData[functionId] = hasAnonOrAuthenticatedPrivileges
+      resultData[functionId] = hasAnyPrivileges
         ? {
             apiAccessType: 'access',
             privileges: functionPrivileges,

@@ -45,6 +45,7 @@ export function ApiAccessCell({ apiAccessData }: { apiAccessData?: FunctionApiAc
   const roles: Array<string> = []
   if (apiAccessData.privileges.anon) roles.push('anon')
   if (apiAccessData.privileges.authenticated) roles.push('authenticated')
+  if (apiAccessData.privileges.service_role) roles.push('service_role')
 
   return (
     <Tooltip>
