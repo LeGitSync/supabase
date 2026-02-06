@@ -1,11 +1,12 @@
 import matter from 'gray-matter'
 import { serialize } from 'next-mdx-remote/serialize'
 import { existsSync } from 'node:fs'
-import { readdir, readFile } from 'node:fs/promises'
-import { basename, extname, join, sep } from 'node:path'
+import { readFile, readdir } from 'node:fs/promises'
+import { basename, extname, join, resolve, sep } from 'node:path'
 import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+
 import { type SerializeOptions } from '~/types/next-mdx-remote-serialize'
 
 // MUST be process.cwd() here, not import.meta.url, or files that are added
@@ -106,7 +107,7 @@ export async function getGuidesStaticProps(
       relPath = section
   }
 
-  const fullPath = join(GUIDES_DIRECTORY, relPath + '.mdx')
+  const fullPath = resolve(GUIDES_DIRECTORY, relPath + '.mdx')
   /**
    * SAFETY CHECK:
    * Prevent accessing anything outside of GUIDES_DIRECTORY
