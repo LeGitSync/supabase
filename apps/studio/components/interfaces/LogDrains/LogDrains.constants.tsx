@@ -18,6 +18,12 @@ export const LOG_DRAIN_TYPES = [
     icon: <BracesIcon {...iconProps} />,
   },
   {
+    value: 'otlp',
+    name: 'OpenTelemetry Protocol (OTLP)',
+    description: 'Send logs to any OpenTelemetry Protocol (OTLP) compatible endpoint',
+    icon: <Otlp {...iconProps} fill="currentColor" strokeWidth={0} />,
+  },
+  {
     value: 'datadog',
     name: 'Datadog',
     description: 'Datadog is a monitoring service for cloud-scale applications',
@@ -49,12 +55,6 @@ export const LOG_DRAIN_TYPES = [
     description:
       'Axiom is a data platform designed to efficiently collect, store, and analyze event and telemetry data at massive scale.',
     icon: <Axiom {...iconProps} fill="currentColor" strokeWidth={0} />,
-  },
-  {
-    value: 'otlp',
-    name: 'OTLP',
-    description: 'Send logs to any OpenTelemetry Protocol (OTLP) compatible endpoint',
-    icon: <Otlp {...iconProps} fill="currentColor" strokeWidth={0} />,
   },
 ] as const
 

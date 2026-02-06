@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import {
   Button,
   Card,
+  cn,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -20,7 +21,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  cn,
 } from 'ui'
 import ConfirmationModal from 'ui-patterns/Dialogs/ConfirmationModal'
 import { GenericSkeletonLoader } from 'ui-patterns/ShimmeringLoader'
@@ -92,7 +92,7 @@ export function LogDrains({
   if (!isLoading && !hasLogDrains) {
     return (
       <>
-        <div className="grid lg:grid-cols-2 gap-4">
+        <div className="grid lg:grid-cols-3 gap-4">
           {LOG_DRAIN_TYPES.filter((t) => {
             if (t.value === 'sentry') return sentryEnabled
             if (t.value === 's3') return s3Enabled
