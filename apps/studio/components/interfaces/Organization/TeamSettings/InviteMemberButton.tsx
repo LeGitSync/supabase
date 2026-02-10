@@ -194,7 +194,7 @@ export const InviteMemberButton = () => {
             roleId: Number(values.role),
             ...projectPayload,
           },
-          { onError: () => {} }
+          { onError: () => { } }
         )
         successCount++
       } catch {
@@ -261,6 +261,34 @@ export const InviteMemberButton = () => {
           <DialogTitle>Invite team members</DialogTitle>
         </DialogHeader>
         <DialogSectionSeparator />
+        <Admonition
+          type="note"
+          showIcon={false}
+          title="Single Sign-On (SSO) available"
+          layout="horizontal"
+          className="rounded-none border-t-0 border-x-0 px-5"
+          description="Enforce login via your company identity provider for added security and access control. Available on Team plan and above."
+          actions={
+            <>
+              <Button asChild type="default">
+                <Link
+                  href={`${DOCS_URL}/guides/platform/sso`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Learn more
+                </Link>
+              </Button>
+              {(currentPlan?.id === 'free' || currentPlan?.id === 'pro') && (
+                <UpgradePlanButton
+                  plan="Team"
+                  source="inviteMemberSSO"
+                  featureProposition="enable Single Sign-on (SSO)"
+                />
+              )}
+            </>
+          }
+        />
         <Form_Shadcn_ {...form}>
           <form
             id="organization-invitation"
@@ -370,34 +398,6 @@ export const InviteMemberButton = () => {
                     </FormControl_Shadcn_>
                   </FormItemLayout>
                 )}
-              />
-              <Admonition
-                type="note"
-                title="Single Sign-On (SSO) available"
-                layout="vertical"
-
-                description="Enforce login via your company identity provider for added security and access control. Available on Team plan and above."
-                actions={
-                  <>
-                    <Button asChild type="default">
-                      <Link
-                        href={`${DOCS_URL}/guides/platform/sso`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Learn more
-                      </Link>
-                    </Button>
-                    {(currentPlan?.id === 'free' || currentPlan?.id === 'pro') && (
-                      <UpgradePlanButton
-                        plan="Team"
-                        source="inviteMemberSSO"
-                        featureProposition="enable Single Sign-on (SSO)"
-                      />
-                    )}
-                  </>
-
-                }
               />
             </DialogSection>
             <DialogSectionSeparator />
