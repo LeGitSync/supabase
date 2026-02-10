@@ -31,6 +31,7 @@ import {
   FormControl_Shadcn_,
   FormField_Shadcn_,
   Form_Shadcn_,
+  DialogFooter,
   SelectContent_Shadcn_,
   SelectGroup_Shadcn_,
   SelectItem_Shadcn_,
@@ -401,12 +402,11 @@ export const InviteMemberButton = () => {
                 )}
               />
             </DialogSection>
-            <DialogSectionSeparator />
-            <DialogSection className="pt-0">
+            <DialogFooter>
               <Button block htmlType="submit" loading={isInviting}>
                 {emailCount >= 2 ? 'Send invitations' : 'Send invitation'}
               </Button>
-            </DialogSection>
+            </DialogFooter>
           </form>
         </Form_Shadcn_>
       </DialogContent>
