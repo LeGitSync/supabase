@@ -55,16 +55,16 @@ const MembersView = ({ searchString }: MembersViewProps) => {
     return !searchString
       ? members
       : members.filter((member) => {
-        if (member.invited_at) {
-          return member.primary_email?.includes(searchString)
-        }
-        if (member.gotrue_id) {
-          return (
-            member.username.includes(searchString) || member.primary_email?.includes(searchString)
-          )
-        }
-        return false
-      })
+          if (member.invited_at) {
+            return member.primary_email?.includes(searchString)
+          }
+          if (member.gotrue_id) {
+            return (
+              member.username.includes(searchString) || member.primary_email?.includes(searchString)
+            )
+          }
+          return false
+        })
   }, [members, searchString])
 
   const [[user], _otherMembers] = partition(
@@ -105,12 +105,8 @@ const MembersView = ({ searchString }: MembersViewProps) => {
                 <TableHeader>
                   <TableRow>
                     <TableHead key="header-user">Member</TableHead>
-                    <TableHead key="header-mfa">
-                      MFA
-                    </TableHead>
-                    <TableHead key="header-role">
-                      Role
-                    </TableHead>
+                    <TableHead key="header-mfa">MFA</TableHead>
+                    <TableHead key="header-role">Role</TableHead>
                     <TableHead key="header-action" />
                   </TableRow>
                 </TableHeader>
@@ -119,17 +115,17 @@ const MembersView = ({ searchString }: MembersViewProps) => {
                   {[
                     ...(isSuccessRoles && isSuccessMembers && !isOrgScopedRole
                       ? [
-                        <TableRow key="project-scope-notice">
-                          <TableCell colSpan={12} className="!p-0">
-                            <Admonition
-                              type="note"
-                              title="You have limited visibility in this organization"
-                              description="Your access is limited to specific projects, so you can’t see all members or settings."
-                              className="border-0 rounded-none"
-                            />
-                          </TableCell>
-                        </TableRow>,
-                      ]
+                          <TableRow key="project-scope-notice">
+                            <TableCell colSpan={12} className="!p-0">
+                              <Admonition
+                                type="note"
+                                title="You have limited visibility in this organization"
+                                description="Your access is limited to specific projects, so you can’t see all members or settings."
+                                className="border-0 rounded-none"
+                              />
+                            </TableCell>
+                          </TableRow>,
+                        ]
                       : []),
                     ...(!!user ? [<MemberRow key={user.gotrue_id} member={user} />] : []),
                     ...sortedMembers.map((member) => (
@@ -137,17 +133,17 @@ const MembersView = ({ searchString }: MembersViewProps) => {
                     )),
                     ...(searchString.length > 0 && filteredMembers.length === 0
                       ? [
-                        <TableRow key="no-results" className="bg-panel-secondary-light">
-                          <TableCell colSpan={12}>
-                            <div className="flex items-center space-x-3 opacity-75">
-                              <AlertCircle size={16} strokeWidth={2} />
-                              <p className="text-foreground-light">
-                                No members matched the search query "{searchString}"
-                              </p>
-                            </div>
-                          </TableCell>
-                        </TableRow>,
-                      ]
+                          <TableRow key="no-results" className="bg-panel-secondary-light">
+                            <TableCell colSpan={12}>
+                              <div className="flex items-center space-x-3 opacity-75">
+                                <AlertCircle size={16} strokeWidth={2} />
+                                <p className="text-foreground-light">
+                                  No members matched the search query "{searchString}"
+                                </p>
+                              </div>
+                            </TableCell>
+                          </TableRow>,
+                        ]
                       : []),
                   ]}
                 </TableBody>

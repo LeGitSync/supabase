@@ -88,7 +88,7 @@ export const MemberRow = ({ member }: MemberRowProps) => {
                   organization={{
                     managed_by:
                       MEMBER_ORIGIN_TO_MANAGED_BY[
-                      (member.metadata as any).origin as keyof typeof MEMBER_ORIGIN_TO_MANAGED_BY
+                        (member.metadata as any).origin as keyof typeof MEMBER_ORIGIN_TO_MANAGED_BY
                       ] ?? 'supabase',
                   }}
                   tooltipText="Managed by Vercel Marketplace."
@@ -96,22 +96,20 @@ export const MemberRow = ({ member }: MemberRowProps) => {
               )}
             </div>
           </div>
-
-
         </div>
       </TableCell>
-
-
 
       <TableCell>
         <div className="flex items-center gap-x-1.5">
           {member.mfa_enabled ? (
             <>
-              <span className="text-foreground-lighter">Enabled</span><Check className="text-brand" strokeWidth={2} size={16} />
+              <span className="text-foreground-lighter">Enabled</span>
+              <Check className="text-brand" strokeWidth={2} size={16} />
             </>
           ) : (
             <>
-              <span className="text-foreground-lighter">Disabled</span><X className="text-foreground-muted" strokeWidth={1.5} size={16} />
+              <span className="text-foreground-lighter">Disabled</span>
+              <X className="text-foreground-muted" strokeWidth={1.5} size={16} />
             </>
           )}
         </div>
@@ -132,15 +130,14 @@ export const MemberRow = ({ member }: MemberRowProps) => {
               role?.projects.length === 0
                 ? orgProjects?.map((p) => p.name) ?? []
                 : (role?.projects ?? [])
-                  .map(({ ref }) => orgProjects?.find((p) => p.ref === ref)?.name ?? '')
-                  .filter((x) => x.length > 0)
+                    .map(({ ref }) => orgProjects?.find((p) => p.ref === ref)?.name ?? '')
+                    .filter((x) => x.length > 0)
 
             return (
               <div key={`role-${id}`} className="flex items-center gap-x-2">
                 <p className="text-foreground-light">{roleName}</p>
                 {hasProjectScopedRoles && (
                   <>
-
                     <ChevronRight className="text-foreground-muted/50" size={14} />
                     {projectsApplied.length === 1 ? (
                       <span className="text-foreground-light truncate" title={projectsApplied[0]}>

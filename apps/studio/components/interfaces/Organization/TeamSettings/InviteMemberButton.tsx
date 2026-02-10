@@ -46,7 +46,10 @@ import { UserPlus } from 'lucide-react'
 import { Admonition } from 'ui-patterns'
 
 function parseEmails(value: string): string[] {
-  return value.split(',').map((e) => e.trim()).filter(Boolean)
+  return value
+    .split(',')
+    .map((e) => e.trim())
+    .filter(Boolean)
 }
 
 export const InviteMemberButton = () => {
@@ -146,9 +149,7 @@ export const InviteMemberButton = () => {
     const toInvite: string[] = []
 
     for (const emailAddress of emails) {
-      const existingMember = (members ?? []).find(
-        (member) => member.primary_email === emailAddress
-      )
+      const existingMember = (members ?? []).find((member) => member.primary_email === emailAddress)
       if (existingMember !== undefined) {
         if (existingMember.invited_id) {
           alreadyInvited.push(emailAddress)
@@ -263,11 +264,7 @@ export const InviteMemberButton = () => {
           actions={
             <>
               <Button asChild type="default">
-                <Link
-                  href={`${DOCS_URL}/guides/platform/sso`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <Link href={`${DOCS_URL}/guides/platform/sso`} target="_blank" rel="noreferrer">
                   Learn more
                 </Link>
               </Button>
@@ -288,7 +285,6 @@ export const InviteMemberButton = () => {
             onSubmit={form.handleSubmit(onInviteMember)}
           >
             <DialogSection className="flex flex-col gap-y-4 pb-2">
-
               <FormField_Shadcn_
                 name="role"
                 control={form.control}
@@ -334,10 +330,7 @@ export const InviteMemberButton = () => {
                   name="applyToOrg"
                   control={form.control}
                   render={({ field }) => (
-                    <FormItemLayout
-                      layout="flex"
-                      label="Grant this role on all projects"
-                    >
+                    <FormItemLayout layout="flex" label="Grant this role on all projects">
                       <FormControl_Shadcn_>
                         <Switch
                           checked={field.value}
@@ -391,7 +384,6 @@ export const InviteMemberButton = () => {
                         data-lpignore="true" // LastPass
                         data-form-type="other" // Dashlane
                         data-bwignore // Bitwarden
-
                       />
                     </FormControl_Shadcn_>
                   </FormItemLayout>
