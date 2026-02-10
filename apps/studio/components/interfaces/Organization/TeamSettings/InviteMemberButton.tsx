@@ -42,6 +42,8 @@ import {
 } from 'ui'
 import { FormItemLayout } from 'ui-patterns/form/FormItemLayout/FormItemLayout'
 import { useGetRolesManagementPermissions } from './TeamSettings.utils'
+import { UserPlus } from 'lucide-react'
+import { Admonition } from 'ui-patterns'
 
 export const InviteMemberButton = () => {
   const { slug } = useParams()
@@ -158,6 +160,7 @@ export const InviteMemberButton = () => {
         <ButtonTooltip
           type="primary"
           disabled={!canInviteMembers}
+          icon={<UserPlus size={14} />}
           className="pointer-events-auto flex-grow md:flex-grow-0"
           onClick={() => setIsOpen(true)}
           tooltip={{
@@ -166,17 +169,17 @@ export const InviteMemberButton = () => {
               text: !organizationMembersCreationEnabled
                 ? 'Inviting members is currently disabled'
                 : !canInviteMembers
-                  ? 'You need additional permissions to invite a member to this organization'
+                  ? 'You need additional permissions to invite members to this organization'
                   : undefined,
             },
           }}
         >
-          Invite member
+          Invite members
         </ButtonTooltip>
       </DialogTrigger>
       <DialogContent size="medium">
         <DialogHeader>
-          <DialogTitle>Invite a member to this organization</DialogTitle>
+          <DialogTitle>Invite team members</DialogTitle>
         </DialogHeader>
         <DialogSectionSeparator />
         <Form_Shadcn_ {...form}>
@@ -186,30 +189,12 @@ export const InviteMemberButton = () => {
             onSubmit={form.handleSubmit(onInviteMember)}
           >
             <DialogSection className="flex flex-col gap-y-4 pb-2">
-              {hasAccessToProjectLevelPermissions && (
-                <FormField_Shadcn_
-                  name="applyToOrg"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItemLayout
-                      layout="flex"
-                      label="Apply role to all projects in the organization"
-                    >
-                      <FormControl_Shadcn_>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={(value) => form.setValue('applyToOrg', value)}
-                        />
-                      </FormControl_Shadcn_>
-                    </FormItemLayout>
-                  )}
-                />
-              )}
+
               <FormField_Shadcn_
                 name="role"
                 control={form.control}
                 render={({ field }) => (
-                  <FormItemLayout label="Member role">
+                  <FormItemLayout label="Role">
                     <FormControl_Shadcn_>
                       <Select_Shadcn_
                         value={field.value}
@@ -245,6 +230,25 @@ export const InviteMemberButton = () => {
                   </FormItemLayout>
                 )}
               />
+              {hasAccessToProjectLevelPermissions && (
+                <FormField_Shadcn_
+                  name="applyToOrg"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItemLayout
+                      layout="flex"
+                      label="Grant this role on all projects"
+                    >
+                      <FormControl_Shadcn_>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={(value) => form.setValue('applyToOrg', value)}
+                        />
+                      </FormControl_Shadcn_>
+                    </FormItemLayout>
+                  )}
+                />
+              )}
               {!applyToOrg && (
                 <FormField_Shadcn_
                   name="projectRef"
@@ -252,7 +256,7 @@ export const InviteMemberButton = () => {
                   render={({ field }) => (
                     <FormItemLayout
                       label="Select a project"
-                      description="You can assign roles to multiple projects once the invite is accepted"
+                      description="Project access can be adjusted after the user joins"
                     >
                       <FormControl_Shadcn_>
                         <OrganizationProjectSelector
@@ -275,50 +279,45 @@ export const InviteMemberButton = () => {
                 name="email"
                 control={form.control}
                 render={({ field }) => (
-                  <FormItemLayout label="Email address">
+                  <FormItemLayout label="Email addresses">
                     <FormControl_Shadcn_>
                       <Input_Shadcn_
                         autoFocus
                         {...field}
                         autoComplete="off"
                         disabled={isInviting}
-                        placeholder="Enter email address"
+                        placeholder="name@example.com, name2@example.com"
                       />
                     </FormControl_Shadcn_>
                   </FormItemLayout>
                 )}
               />
-              <InformationBox
-                defaultVisibility={false}
-                title="Single Sign-on (SSO) login option available"
-                hideCollapse={false}
-                description={
-                  <div className="space-y-4 mb-1">
-                    <p>
-                      Supabase offers single sign-on (SSO) as a login option to provide additional
-                      account security for your team. This allows company administrators to enforce
-                      the use of an identity provider when logging into Supabase.
-                    </p>
-                    <p>This is only available for organizations on Team Plan or above.</p>
-                    <div className="flex items-center space-x-2">
-                      <Button asChild type="default">
-                        <Link
-                          href={`${DOCS_URL}/guides/platform/sso`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Learn more
-                        </Link>
-                      </Button>
-                      {(currentPlan?.id === 'free' || currentPlan?.id === 'pro') && (
-                        <UpgradePlanButton
-                          plan="Team"
-                          source="inviteMemberSSO"
-                          featureProposition="enable Single Sign-on (SSO)"
-                        />
-                      )}
-                    </div>
-                  </div>
+              <Admonition
+                type="note"
+                title="Single Sign-on (SSO) available"
+                layout="vertical"
+
+                description="Enforce login via your company identity provider for added security and access control. Available on Team plan and above."
+                actions={
+                  <>
+                    <Button asChild type="default">
+                      <Link
+                        href={`${DOCS_URL}/guides/platform/sso`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Learn more
+                      </Link>
+                    </Button>
+                    {(currentPlan?.id === 'free' || currentPlan?.id === 'pro') && (
+                      <UpgradePlanButton
+                        plan="Team"
+                        source="inviteMemberSSO"
+                        featureProposition="enable Single Sign-on (SSO)"
+                      />
+                    )}
+                  </>
+
                 }
               />
             </DialogSection>

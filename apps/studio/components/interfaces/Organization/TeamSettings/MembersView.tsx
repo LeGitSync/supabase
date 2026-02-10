@@ -15,6 +15,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -54,15 +55,15 @@ const MembersView = ({ searchString }: MembersViewProps) => {
     return !searchString
       ? members
       : members.filter((member) => {
-          if (member.invited_at) {
-            return member.primary_email?.includes(searchString)
-          }
-          if (member.gotrue_id) {
-            return (
-              member.username.includes(searchString) || member.primary_email?.includes(searchString)
-            )
-          }
-        })
+        if (member.invited_at) {
+          return member.primary_email?.includes(searchString)
+        }
+        if (member.gotrue_id) {
+          return (
+            member.username.includes(searchString) || member.primary_email?.includes(searchString)
+          )
+        }
+      })
   }, [members, searchString])
 
   const [[user], _otherMembers] = partition(
@@ -102,29 +103,12 @@ const MembersView = ({ searchString }: MembersViewProps) => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead key="header-user">User</TableHead>
-                    <TableHead key="header-status" className="w-24" />
-                    <TableHead key="header-mfa" className="text-center w-32">
-                      Enabled MFA
+                    <TableHead key="header-user">Member</TableHead>
+                    <TableHead key="header-mfa">
+                      MFA
                     </TableHead>
-                    <TableHead key="header-role" className="flex items-center space-x-1">
-                      <span>Role</span>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button asChild type="text" className="px-1">
-                            <a
-                              target="_blank"
-                              rel="noreferrer"
-                              href={`${DOCS_URL}/guides/platform/access-control`}
-                            >
-                              <HelpCircle size={14} className="text-foreground-light" />
-                            </a>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                          How to configure access control?
-                        </TooltipContent>
-                      </Tooltip>
+                    <TableHead key="header-role">
+                      Role
                     </TableHead>
                     <TableHead key="header-action" />
                   </TableRow>
@@ -132,19 +116,19 @@ const MembersView = ({ searchString }: MembersViewProps) => {
 
                 <TableBody>
                   {[
-                    ...(isSuccessRoles && isSuccessMembers && !isOrgScopedRole
+                    ...(true
                       ? [
-                          <TableRow key="project-scope-notice">
-                            <TableCell colSpan={12} className="!p-0">
-                              <Admonition
-                                type="note"
-                                title="You are currently assigned with project scoped roles in this organization"
-                                description="All other members within the organization will not be visible to you"
-                                className="bg-alternative border-0 rounded-none"
-                              />
-                            </TableCell>
-                          </TableRow>,
-                        ]
+                        <TableRow key="project-scope-notice">
+                          <TableCell colSpan={12} className="!p-0">
+                            <Admonition
+                              type="note"
+                              title="You have limited visibility in this organization"
+                              description="Your access is limited to specific projects, so you can’t see all members or settings."
+                              className="border-0 rounded-none"
+                            />
+                          </TableCell>
+                        </TableRow>,
+                      ]
                       : []),
                     ...(!!user ? [<MemberRow key={user.gotrue_id} member={user} />] : []),
                     ...sortedMembers.map((member) => (
@@ -152,28 +136,29 @@ const MembersView = ({ searchString }: MembersViewProps) => {
                     )),
                     ...(searchString.length > 0 && filteredMembers.length === 0
                       ? [
-                          <TableRow key="no-results" className="bg-panel-secondary-light">
-                            <TableCell colSpan={12}>
-                              <div className="flex items-center space-x-3 opacity-75">
-                                <AlertCircle size={16} strokeWidth={2} />
-                                <p className="text-foreground-light">
-                                  No users matched the search query "{searchString}"
-                                </p>
-                              </div>
-                            </TableCell>
-                          </TableRow>,
-                        ]
+                        <TableRow key="no-results" className="bg-panel-secondary-light">
+                          <TableCell colSpan={12}>
+                            <div className="flex items-center space-x-3 opacity-75">
+                              <AlertCircle size={16} strokeWidth={2} />
+                              <p className="text-foreground-light">
+                                No members matched the search query "{searchString}"
+                              </p>
+                            </div>
+                          </TableCell>
+                        </TableRow>,
+                      ]
                       : []),
-                    <TableRow key="footer" className="bg-panel-secondary-light">
-                      <TableCell colSpan={12}>
-                        <p className="text-foreground-light">
-                          {searchString ? `${filteredMembers.length} of ` : ''}
-                          {members.length || '0'} {members.length == 1 ? 'user' : 'users'}
-                        </p>
-                      </TableCell>
-                    </TableRow>,
                   ]}
                 </TableBody>
+                <TableFooter className="font-normal">
+                  <TableRow className="border-b-0 [&>td]:hover:bg-inherit">
+                    <TableCell colSpan={4} className="text-foreground-muted">
+                      {searchString
+                        ? `${filteredMembers.length} of ${members.length} ${members.length === 1 ? 'member' : 'members'}`
+                        : `${members.length || 0} ${members.length === 1 ? 'member' : 'members'}`}
+                    </TableCell>
+                  </TableRow>
+                </TableFooter>
               </Table>
             </Loading>
           </Card>
