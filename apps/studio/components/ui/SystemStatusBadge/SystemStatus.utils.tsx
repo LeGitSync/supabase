@@ -35,7 +35,7 @@ export function getBadgeConfig(status: SystemStatus): BadgeVariant {
         variant: 'success',
         label: 'Operational',
         icon: <StatusIcon status="operational" />,
-        hoverStyle: 'hover:border-brand/50 hover:bg-brand-300',
+        hoverStyle: 'aspect-square border-transparent hover:border-stronger bg-transparent',
       }
     case 'incident':
       return {

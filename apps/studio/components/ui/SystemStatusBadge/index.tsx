@@ -20,6 +20,8 @@ export const SystemStatusBadge = () => {
 
   const badgeConfig = getBadgeConfig(status)
 
+  const isOperational = status === 'operational'
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -33,7 +35,7 @@ export const SystemStatusBadge = () => {
             className="flex items-center gap-1"
           >
             {badgeConfig.icon}
-            {badgeConfig.label}
+            {!isOperational ? badgeConfig.label : null}
           </Link>
         </Badge>
       </TooltipTrigger>
