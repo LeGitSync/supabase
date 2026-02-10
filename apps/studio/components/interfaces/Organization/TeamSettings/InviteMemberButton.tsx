@@ -31,7 +31,6 @@ import {
   FormControl_Shadcn_,
   FormField_Shadcn_,
   Form_Shadcn_,
-  Input_Shadcn_,
   SelectContent_Shadcn_,
   SelectGroup_Shadcn_,
   SelectItem_Shadcn_,
@@ -41,6 +40,7 @@ import {
 } from 'ui'
 import { FormItemLayout } from 'ui-patterns/form/FormItemLayout/FormItemLayout'
 import { useGetRolesManagementPermissions } from './TeamSettings.utils'
+import { EmailLozengeInput } from './EmailLozengeInput'
 import { UserPlus } from 'lucide-react'
 import { Admonition } from 'ui-patterns'
 
@@ -388,10 +388,11 @@ export const InviteMemberButton = () => {
                 render={({ field }) => (
                   <FormItemLayout label="Email addresses">
                     <FormControl_Shadcn_>
-                      <Input_Shadcn_
+                      <EmailLozengeInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
                         autoFocus
-                        {...field}
-                        autoComplete="off"
                         disabled={isInviting}
                         placeholder="name@example.com, name2@example.com"
                       />
