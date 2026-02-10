@@ -8,7 +8,6 @@ import * as z from 'zod'
 
 import { useParams } from 'common'
 import { ButtonTooltip } from 'components/ui/ButtonTooltip'
-import InformationBox from 'components/ui/InformationBox'
 import { OrganizationProjectSelector } from 'components/ui/OrganizationProjectSelector'
 import { UpgradePlanButton } from 'components/ui/UpgradePlanButton'
 import { useOrganizationCreateInvitationMutation } from 'data/organization-members/organization-invitation-create-mutation'
@@ -92,7 +91,7 @@ export const InviteMemberButton = () => {
   const { mutate: inviteMember, isPending: isInviting } = useOrganizationCreateInvitationMutation()
 
   const FormSchema = z.object({
-    email: z.string().email('Must be a valid email address').min(1, 'Email is required'),
+    email: z.string().email('Must be a valid email address').min(1, 'At least one email address is required'),
     role: z.string().min(1, 'Role is required'),
     applyToOrg: z.boolean(),
     projectRef: z.string(),
@@ -294,7 +293,7 @@ export const InviteMemberButton = () => {
               />
               <Admonition
                 type="note"
-                title="Single Sign-on (SSO) available"
+                title="Single Sign-On (SSO) available"
                 layout="vertical"
 
                 description="Enforce login via your company identity provider for added security and access control. Available on Team plan and above."
