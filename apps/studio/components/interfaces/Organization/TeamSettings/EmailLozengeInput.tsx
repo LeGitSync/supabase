@@ -5,7 +5,7 @@ import { cn } from 'ui'
 import { X } from 'lucide-react'
 
 const INPUT_STYLES =
-  'flex w-full flex-wrap items-center gap-x-1 gap-y-1.5 rounded-md border border-control bg-foreground/[.026] px-3 py-2 text-sm focus-within:outline-none focus-within:ring-2 focus-within:ring-background-control focus-within:ring-offset-2 focus-within:ring-offset-foreground-muted disabled:cursor-not-allowed disabled:opacity-50'
+  'flex min-h-10 w-full flex-wrap items-center gap-x-1 gap-y-1.5 rounded-md border border-control bg-foreground/[.026] px-3 py-2 text-sm focus-within:outline-none focus-within:ring-2 focus-within:ring-background-control focus-within:ring-offset-2 focus-within:ring-offset-foreground-muted disabled:cursor-not-allowed disabled:opacity-50'
 
 const commitInput = (input: string): string | null => {
   const trimmed = input.trim()
@@ -174,7 +174,7 @@ export const EmailLozengeInput = React.forwardRef<HTMLInputElement, EmailLozenge
           placeholder={lozenges.length === 0 ? placeholder : ''}
           autoComplete="off"
           autoFocus={autoFocus}
-          className="flex-1 bg-transparent border-none outline-none text-sm placeholder:text-foreground-muted"
+          className="min-w-[80px] flex-1 bg-transparent border-none p-0 text-sm placeholder:text-foreground-muted outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
         />
       </div>
     )
