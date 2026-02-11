@@ -26,16 +26,10 @@ export const SystemStatusBadge = () => {
       <TooltipTrigger asChild>
         <Badge
           variant={badgeConfig.variant}
-          className={cn('cursor-pointer', badgeConfig.hoverStyle)}
+          className={cn('flex items-center gap-1', badgeConfig.hoverStyle)}
         >
-          <Link
-            href="https://status.supabase.com"
-            target="_blank"
-            className="flex items-center gap-1"
-          >
-            {badgeConfig.icon}
-            {!isOperational ? badgeConfig.label : null}
-          </Link>
+          {badgeConfig.icon}
+          {!isOperational ? badgeConfig.label : null}
         </Badge>
       </TooltipTrigger>
       <TooltipContent side="bottom" align="start" className="w-screen !max-w-[240px] p-0">

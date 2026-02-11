@@ -5,6 +5,7 @@ import { StatusPageBanner } from 'components/layouts/AppLayout/StatusPageBanner'
 import { PropsWithChildren } from 'react'
 
 import { OrganizationResourceBanner } from '../Organization/HeaderBanner'
+import { useIsSystemStatusBadgeEnabled } from './FeaturePreview/FeaturePreviewContext'
 
 export const AppBannerWrapper = ({ children }: PropsWithChildren<{}>) => {
   const showNoticeBanner = useFlag('showNoticeBanner')

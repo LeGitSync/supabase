@@ -1,7 +1,6 @@
+import { User } from 'icons'
 import Image from 'next/image'
 import { ReactNode, useState } from 'react'
-
-import { User } from 'icons'
 import { cn } from 'ui'
 
 interface ProfileImageProps {
@@ -14,7 +13,7 @@ interface ProfileImageProps {
 export const ProfileImage = ({ alt, src, placeholder, className }: ProfileImageProps) => {
   const [hasInvalidImg, setHasInvalidImg] = useState(false)
 
-  return !!src && !hasInvalidImg ? (
+  return !src && !hasInvalidImg ? (
     <Image
       alt={alt ?? ''}
       src={src}
