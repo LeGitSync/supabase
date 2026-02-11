@@ -22,6 +22,7 @@ export const getReportAttributesV2: (
     {
       id: 'ram-usage',
       label: 'Memory breakdown',
+      titleTooltip: 'Shows how your database uses memory across Used (active Postgres/OS), Cache + Buffers (page cache and buffers), Free (unallocated), and Swap (disk memory).\n\nWatch for high swap usage (red) which indicates memory pressure and performance issues.',
       docsUrl: `${DOCS_URL}/guides/telemetry/reports#memory-breakdown`,
       availableIn: ['free', 'pro', 'team', 'enterprise', 'platform'],
       hide: false,
@@ -72,6 +73,7 @@ export const getReportAttributesV2: (
     {
       id: 'cpu-usage',
       label: 'CPU usage',
+      titleTooltip: 'CPU time breakdown by category: User (queries/processes), System (kernel operations), IOWait (waiting for disk/network), IRQs (interrupts), and Other.\n\nHigh User indicates CPU-intensive queries; high IOWait suggests disk bottlenecks.',
       docsUrl: `${DOCS_URL}/guides/telemetry/reports#cpu-usage`,
       syncId: 'database-reports',
       format: '%',
@@ -145,6 +147,7 @@ export const getReportAttributesV2: (
     {
       id: 'disk-iops',
       label: 'Disk Input/Output operations per second (IOPS)',
+      titleTooltip: 'Read and write operations per second with your compute size\'s maximum IOPS limit shown as a reference line.\n\nApproaching or hitting the limit indicates disk IO bottlenecks. Distinguish read-heavy vs write-heavy workloads to optimize accordingly.',
       docsUrl: `${DOCS_URL}/guides/telemetry/reports#disk-inputoutput-operations-per-second-iops`,
       syncId: 'database-reports',
       availableIn: ['free', 'pro', 'team', 'enterprise', 'platform'],
@@ -189,6 +192,7 @@ export const getReportAttributesV2: (
     {
       id: 'disk-throughput',
       label: 'Disk throughput',
+      titleTooltip: 'Read and write disk throughput (bytes per second) with your compute size\'s maximum throughput limit.\n\nSaturating bandwidth indicates performance bottlenecks. Use to identify large sequential reads/writes and optimize query patterns.',
       docsUrl: `${DOCS_URL}/guides/platform/compute-add-ons#disk-throughput`,
       syncId: 'database-reports',
       availableIn: ['team', 'enterprise', 'platform'],
@@ -236,11 +240,12 @@ export const getReportAttributesV2: (
       // Client Connections metric for free tier
       id: 'client-connections-basic',
       label: 'Database Connections',
+      titleTooltip: 'Total active database connections with maximum connection limit.\n\nMonitor to avoid connection exhaustion and identify applications not properly closing connections.',
       syncId: 'database-reports',
       valuePrecision: 0,
       availableIn: ['free'],
       hide: !isFreePlan,
-      showTooltip: false,
+      showTooltip: true,
       showLegend: false,
       showMaxValue: true,
       hideChartType: false,
@@ -269,6 +274,7 @@ export const getReportAttributesV2: (
       // advanced client connections metric for paid and above
       id: 'client-connections',
       label: 'Database Connections',
+      titleTooltip: 'Connection breakdown by source: Postgres (direct), PostgREST (API), Auth, Storage, Reserved (admin), and other roles.\n\nMonitor distribution across services and identify connection leaks when approaching max limits.',
       syncId: 'database-reports',
       valuePrecision: 0,
       availableIn: ['pro', 'team', 'enterprise', 'platform'],
@@ -333,6 +339,7 @@ export const getReportAttributesV2: (
     {
       id: 'pgbouncer-connections',
       label: 'Dedicated Pooler Client Connections',
+      titleTooltip: 'Client connections to PgBouncer (dedicated pooler) with maximum pooler connection limit.\n\nMonitor to ensure efficient connection pooling and avoid exhausting pooler capacity.',
       syncId: 'database-reports',
       valuePrecision: 0,
       availableIn: ['pro', 'team', 'enterprise', 'platform'],
@@ -365,11 +372,12 @@ export const getReportAttributesV2: (
     {
       id: 'supavisor-connections-active',
       label: 'Shared Pooler (Supavisor) client connections',
+      titleTooltip: 'Active client connections to the shared pooler (Supavisor).\n\nTrack usage patterns of the shared connection pooler across your applications.',
       syncId: 'database-reports',
       valuePrecision: 0,
       availableIn: ['pro', 'team', 'enterprise', 'platform'],
       hide: isFreePlan,
-      showTooltip: false,
+      showTooltip: true,
       showLegend: false,
       showMaxValue: false,
       showGrid: true,
@@ -388,6 +396,7 @@ export const getReportAttributesV2: (
     {
       id: 'disk-size',
       label: 'Disk Usage',
+      titleTooltip: 'Disk space breakdown by Database (tables/indexes), WAL (Write-Ahead Logging), and System (reserved space).\n\nTrack storage trends over time and plan capacity upgrades before hitting limits.',
       syncId: 'database-reports',
       valuePrecision: 2,
       availableIn: ['free', 'pro', 'team', 'enterprise', 'platform'],
