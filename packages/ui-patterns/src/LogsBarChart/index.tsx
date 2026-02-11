@@ -71,6 +71,7 @@ export const LogsBarChart = ({
       <ChartContainer className="h-full" config={chartConfig ?? defaultChartConfig}>
         <RechartBarChart
           data={data}
+          style={{ cursor: 'crosshair' }}
           onMouseMove={(e: any) => {
             if (e.activeTooltipIndex !== focusDataIndex) {
               setFocusDataIndex(e.activeTooltipIndex)
@@ -98,6 +99,10 @@ export const LogsBarChart = ({
           <ChartTooltip
             animationDuration={0}
             position={{ y: 16 }}
+            cursor={{
+              stroke: 'rgba(255, 255, 255, 0.5)',
+              strokeWidth: 1,
+            }}
             content={(props) => {
               if (!props.active || !props.payload || props.payload.length === 0) {
                 return null
