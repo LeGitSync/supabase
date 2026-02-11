@@ -52,6 +52,10 @@ This is the shadcn default pattern. All components should converge to this.
   - `src/lib/commonCva.ts`
   - `src/lib/theme/defaultTheme.ts`
 
+### ✓ Verification Checkpoint 1
+- [ ] `packages/ui/src/lib/commonCva.ts` exports `focusRing` utility
+- [ ] No TypeScript errors when importing from commonCva
+
 ---
 
 ## Phase 2: Update Shadcn Components
@@ -80,6 +84,16 @@ This is the shadcn default pattern. All components should converge to this.
 
 - [ ] 2.7 `src/components/shadcn/ui/button.tsx`
   - Change `ring-foreground-muted` → `ring-ring`
+
+### ✓ Verification Checkpoint 2
+Check in **Storybook** or design system:
+- [ ] **Select** - Tab to select, verify ring appears only on keyboard focus (not click)
+- [ ] **Dialog** - Tab to close button, verify consistent ring
+- [ ] **Sheet** - Tab to close button, verify consistent ring
+- [ ] **Input** - Tab to input field, verify ring color matches other components
+- [ ] **TextArea** - Tab to textarea, verify ring color matches Input
+- [ ] **Button (shadcn)** - Tab through buttons, verify consistent ring
+- [ ] **RadioGroup** - Tab to radio, verify no double focus indicators
 
 ---
 
@@ -110,6 +124,16 @@ focus-visible:ring-offset-2
   - All variants should use `ring-ring` for consistency
 
 - [ ] 3.3 Update `data-[state=open]:outline-*` to `data-[state=open]:ring-*` if needed
+
+### ✓ Verification Checkpoint 3
+Check in **Storybook**:
+- [ ] **Button (primary)** - Ring instead of outline
+- [ ] **Button (default)** - Same ring as primary
+- [ ] **Button (secondary)** - Same ring color
+- [ ] **Button (outline)** - Same ring color
+- [ ] **Button (danger)** - Same ring color (no more amber)
+- [ ] **Button (warning)** - Same ring color (no more amber)
+- [ ] All button types have identical focus ring appearance
 
 ---
 
@@ -153,9 +177,25 @@ This file contains the most focus patterns. Update each section:
 - [ ] 4.11 Update listbox (lines ~1298-1321)
   - Standardize to `ring-ring`
 
+### ✓ Verification Checkpoint 4
+Check in **Storybook**:
+- [ ] **Accordion** - Tab through triggers
+- [ ] **Tabs** (underlined, pills, rounded-pills) - Tab through each variant
+- [ ] **Input** (legacy) - Tab to input
+- [ ] **Select** (legacy) - Tab to select
+- [ ] **InputNumber** - Tab to input
+- [ ] **Checkbox** (legacy) - Tab to checkbox
+- [ ] **Radio** (legacy) - Tab through radio options
+- [ ] **Toggle** - Tab to toggle
+- [ ] **Popover** - Tab to trigger
+- [ ] **Menu** - Tab through menu items
+- [ ] **Listbox** - Tab to listbox
+
 ---
 
-## Phase 5: Remove Legacy CSS Module Focus Styles
+## Phase 5: Remove Legacy CSS Module Focus Styles & sbui Classes
+
+> **Note:** `sbui-*` classes are legacy styling. Remove any encountered during this work.
 
 **Files to update:**
 
@@ -175,6 +215,21 @@ This file contains the most focus patterns. Update each section:
 
 - [ ] 5.6 Verify Radio.module.css (mostly commented out, confirm safe)
 
+**Also remove any unused `sbui-*` classes in:**
+- `SelectStyled.module.css` - `.sbui-listbox`, `.sbui-listbox-*`
+- `InputNumber.module.css` - `.sbui-inputnumber`, `.sbui-inputnumber-*`
+- `Select.module.css` - `.sbui-select`, `.sbui-select-*`
+- `Input.module.css` - `.sbui-input`, `.sbui-input-*`
+- `Checkbox.module.css` - `.sbui-checkbox`, `.sbui-checkbox-*`
+- `Radio.module.css` - `.sbui-radio`, `.sbui-radio-*`
+
+### ✓ Verification Checkpoint 5
+- [ ] **Listbox** - No green focus ring (was `rgba(62, 207, 142, 0.1)`)
+- [ ] **InputNumber** - No green focus ring
+- [ ] **Select (legacy)** - No green focus ring
+- [ ] Grep for `box-shadow.*62.*207.*142` returns no results
+- [ ] Grep for `sbui-` in modified CSS files returns minimal/no results
+
 ---
 
 ## Phase 6: Update Remaining Components
@@ -191,21 +246,41 @@ This file contains the most focus patterns. Update each section:
 - [ ] 6.4 `src/components/NavMenu/index.tsx`
   - Verify uses `ring-ring`
 
+### ✓ Verification Checkpoint 6
+- [ ] **TextLink** - Tab to link, verify ring color
+- [ ] **RadioGroupStacked** - Tab through items
+- [ ] **RadioGroupCard** - Tab through cards
+- [ ] **NavMenu** - Tab through nav items
+
 ---
 
-## Phase 7: Testing & Verification
+## Final Verification
 
-- [ ] 7.1 Visual regression testing
-  - Tab through all interactive components
-  - Verify consistent ring color and size
+### Visual Consistency Test
+Open Storybook and tab through this sequence - ALL should have identical ring:
+1. Button → Input → Select → Checkbox → Radio → Switch → Tabs → Accordion
 
-- [ ] 7.2 Browser testing
-  - Test in Chrome, Firefox, Safari
-  - Verify `focus-visible` works correctly (no focus on click)
+### Grep Verification
+Run these to confirm no inconsistent patterns remain:
+```bash
+# Should return 0 results (no legacy green focus)
+grep -r "62, 207, 142" packages/ui/src
 
-- [ ] 7.3 Accessibility testing
-  - Verify focus indicators meet WCAG 2.1 requirements
-  - Test with screen readers
+# Should return 0 results (no outline-based focus on buttons)
+grep -r "focus-visible:outline-brand" packages/ui/src
+
+# Should return 0 results (no focus: without focus-visible:)
+grep -r "focus:ring-" packages/ui/src --include="*.tsx" | grep -v "focus-visible"
+
+# Should return minimal results (legacy sbui classes removed)
+grep -r "sbui-" packages/ui/src --include="*.css"
+```
+
+### Browser Test
+Test keyboard navigation in Chrome, Firefox, Safari:
+- [ ] Focus ring appears on Tab (keyboard)
+- [ ] Focus ring does NOT appear on click (mouse)
+- [ ] Ring color is consistent across all components
 
 ---
 
@@ -219,7 +294,7 @@ This file contains the most focus patterns. Update each section:
 | Phase 4 | 1 (large) | 2 hours |
 | Phase 5 | 6 | 1 hour |
 | Phase 6 | 4 | 30 min |
-| Phase 7 | - | 2 hours |
+| Final | - | 2 hours |
 | **Total** | ~21 files | **~7-8 hours** |
 
 ---
@@ -239,6 +314,7 @@ This file contains the most focus patterns. Update each section:
 - [ ] All focus states use `ring-2` size
 - [ ] All focus states use `ring-offset-2` (or `ring-inset` for specific cases)
 - [ ] No hardcoded colors (green box-shadows removed)
+- [ ] No unused `sbui-*` legacy classes
 - [ ] Visual consistency when tabbing through any page
 
 ---
