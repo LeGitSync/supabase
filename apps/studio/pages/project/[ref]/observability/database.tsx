@@ -3,10 +3,12 @@ import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { ArrowRight, ExternalLink, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useFlag, useParams } from 'common'
+import { DatabaseInfrastructureSection } from 'components/interfaces/Observability/DatabaseInfrastructureSection'
+import { useSlowQueriesCount } from 'components/interfaces/Observability/useSlowQueriesCount'
 import ReportHeader from 'components/interfaces/Reports/ReportHeader'
 import ReportPadding from 'components/interfaces/Reports/ReportPadding'
 import { REPORT_DATERANGE_HELPER_LABELS } from 'components/interfaces/Reports/Reports.constants'
@@ -85,6 +87,25 @@ const DatabaseUsage = () => {
 
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showIncreaseDiskSizeModal, setshowIncreaseDiskSizeModal] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  // Calculate interval based on selected date range duration
+  const interval = useMemo<'1hr' | '1day' | '7day'>(() => {
+    if (!selectedDateRange) return '1day'
+
+    const start = dayjs(selectedDateRange.period_start.date)
+    const end = dayjs(selectedDateRange.period_end.date)
+    const hoursDiff = end.diff(start, 'hour')
+
+    if (hoursDiff <= 2) return '1hr'
+    if (hoursDiff <= 48) return '1day'
+    return '7day'
+  }, [selectedDateRange])
+
+  const { slowQueriesCount, isLoading: slowQueriesLoading } = useSlowQueriesCount(
+    ref,
+    refreshKey
+  )
 
   const isReplicaSelected = state.selectedDatabaseId !== project?.ref
 
@@ -148,6 +169,7 @@ const DatabaseUsage = () => {
       if (!selectedDateRange) return
 
       setIsRefreshing(true)
+      setRefreshKey((prev) => prev + 1)
       refresh()
       const { period_start, period_end, interval } = selectedDateRange
 
@@ -246,6 +268,22 @@ const DatabaseUsage = () => {
           </>
         }
       >
+        {selectedDateRange && (
+          <div className="mb-8">
+            <DatabaseInfrastructureSection
+              interval={interval}
+              refreshKey={refreshKey}
+              dbErrorRate={0}
+              isLoading={isLoading}
+              slowQueriesCount={slowQueriesCount}
+              slowQueriesLoading={slowQueriesLoading}
+              hideTitle={true}
+              startDate={selectedDateRange.period_start.date}
+              endDate={selectedDateRange.period_end.date}
+              showLinks={false}
+            />
+          </div>
+        )}
         {selectedDateRange &&
           orgPlan?.id &&
           REPORT_ATTRIBUTES.filter((chart) => !chart.hide).map((chart) =>
