@@ -350,9 +350,7 @@ export const DatabaseInfrastructureSection = ({
                     >
                       Swap: {memoryPressure.swapUsedMB.toFixed(0)} MB
                     </div>
-                    <div className="text-xs text-foreground-light">
-                      Cache hit: {cacheHitRate}
-                    </div>
+                    <div className="text-xs text-foreground-light">Cache hit: {cacheHitRate}</div>
                   </div>
                 ) : (
                   <MetricCardValue>--</MetricCardValue>
@@ -389,9 +387,7 @@ export const DatabaseInfrastructureSection = ({
                   >
                     Swap: {memoryPressure.swapUsedMB.toFixed(0)} MB
                   </div>
-                  <div className="text-xs text-foreground-light">
-                    Cache hit: {cacheHitRate}
-                  </div>
+                  <div className="text-xs text-foreground-light">Cache hit: {cacheHitRate}</div>
                 </div>
               ) : (
                 <MetricCardValue>--</MetricCardValue>

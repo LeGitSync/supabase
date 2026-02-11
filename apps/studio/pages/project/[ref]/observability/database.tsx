@@ -1,11 +1,5 @@
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 import { useQueryClient } from '@tanstack/react-query'
-import dayjs from 'dayjs'
-import { ArrowRight, ExternalLink, RefreshCw } from 'lucide-react'
-import Link from 'next/link'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { toast } from 'sonner'
-
 import { useFlag, useParams } from 'common'
 import { DatabaseInfrastructureSection } from 'components/interfaces/Observability/DatabaseInfrastructureSection'
 import { useSlowQueriesCount } from 'components/interfaces/Observability/useSlowQueriesCount'
@@ -38,15 +32,20 @@ import { usePgbouncerConfigQuery } from 'data/database/pgbouncer-config-query'
 import { getReportAttributesV2 } from 'data/reports/database-charts'
 import { useDatabaseReport } from 'data/reports/database-report-query'
 import { useProjectAddonsQuery } from 'data/subscriptions/project-addons-query'
+import dayjs from 'dayjs'
 import { useAsyncCheckPermissions } from 'hooks/misc/useCheckPermissions'
 import { useRefreshHandler, useReportDateRange } from 'hooks/misc/useReportDateRange'
 import { useSelectedOrganizationQuery } from 'hooks/misc/useSelectedOrganization'
 import { useSelectedProjectQuery } from 'hooks/misc/useSelectedProject'
 import { DOCS_URL } from 'lib/constants'
 import { formatBytes } from 'lib/helpers'
+import { ArrowRight, ExternalLink, RefreshCw } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
 import { useDatabaseSelectorStateSnapshot } from 'state/database-selector'
 import type { NextPageWithLayout } from 'types'
-import { AlertDescription_Shadcn_, Alert_Shadcn_, Button } from 'ui'
+import { Alert_Shadcn_, AlertDescription_Shadcn_, Button } from 'ui'
 
 const DatabaseReport: NextPageWithLayout = () => {
   return (
@@ -102,10 +101,7 @@ const DatabaseUsage = () => {
     return '7day'
   }, [selectedDateRange])
 
-  const { slowQueriesCount, isLoading: slowQueriesLoading } = useSlowQueriesCount(
-    ref,
-    refreshKey
-  )
+  const { slowQueriesCount, isLoading: slowQueriesLoading } = useSlowQueriesCount(ref, refreshKey)
 
   const isReplicaSelected = state.selectedDatabaseId !== project?.ref
 

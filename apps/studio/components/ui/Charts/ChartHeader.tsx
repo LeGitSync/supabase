@@ -11,8 +11,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { cn, Tooltip, TooltipContent, TooltipTrigger } from 'ui'
-import { Badge } from 'ui'
+import { Badge, cn, Tooltip, TooltipContent, TooltipTrigger } from 'ui'
 
 import { formatPercentage, numberFormatter } from './Charts.utils'
 import { useChartHoverState } from './useChartHoverState'
@@ -190,9 +189,14 @@ export const ChartHeader = ({
             <TooltipContent side="top" className="max-w-xs">
               <div className="flex flex-col gap-2">
                 {titleTooltip &&
-                  titleTooltip.split('\n').map((line, i) => (
-                    line.trim() && <p key={i} className="text-xs">{line}</p>
-                  ))}
+                  titleTooltip.split('\n').map(
+                    (line, i) =>
+                      line.trim() && (
+                        <p key={i} className="text-xs">
+                          {line}
+                        </p>
+                      )
+                  )}
                 {docsUrl && (
                   <Link
                     href={docsUrl}
