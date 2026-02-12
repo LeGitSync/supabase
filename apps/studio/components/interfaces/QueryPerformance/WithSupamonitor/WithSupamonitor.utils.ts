@@ -16,6 +16,10 @@ export interface ParsedLogEntry {
   max_exec_time?: number
   min_plan_time?: number
   max_plan_time?: number
+  p50_exec_time?: number
+  p95_exec_time?: number
+  p50_plan_time?: number
+  p95_plan_time?: number
   [key: string]: any
 }
 
@@ -54,6 +58,10 @@ export const parseSupamonitorLogs = (logData: any[]): ParsedLogEntry[] => {
     max_exec_time: log.max_exec_time,
     min_plan_time: log.min_plan_time,
     max_plan_time: log.max_plan_time,
+    p50_exec_time: log.p50_exec_time,
+    p95_exec_time: log.p95_exec_time,
+    p50_plan_time: log.p50_plan_time,
+    p95_plan_time: log.p95_plan_time,
   }))
 }
 
@@ -79,8 +87,8 @@ export const transformLogsToChartData = (parsedLogs: ParsedLogEntry[]): ChartDat
         min_time: (log.min_exec_time ?? 0) + (log.min_plan_time ?? 0),
         max_time: (log.max_exec_time ?? 0) + (log.max_plan_time ?? 0),
         stddev_time: 0,
-        p50_time: 0,
-        p95_time: 0,
+        p50_time: (log.p50_exec_time ?? 0) + (log.p50_plan_time ?? 0),
+        p95_time: (log.p95_exec_time ?? 0) + (log.p95_plan_time ?? 0),
         rows_read: 0,
         calls,
         cache_hits: 0,

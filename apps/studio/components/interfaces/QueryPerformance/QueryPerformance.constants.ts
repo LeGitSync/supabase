@@ -156,7 +156,11 @@ select
     ELSE 0
   END as mean_plan_time,
   MIN(NULLIF(sml_parsed.total_plan_time, 0)) as min_plan_time,
-  MAX(sml_parsed.total_plan_time) as max_plan_time
+  MAX(sml_parsed.total_plan_time) as max_plan_time,
+  APPROX_QUANTILES(sml_parsed.total_exec_time, 100)[OFFSET(50)] as p50_exec_time,
+  APPROX_QUANTILES(sml_parsed.total_exec_time, 100)[OFFSET(95)] as p95_exec_time,
+  APPROX_QUANTILES(sml_parsed.total_plan_time, 100)[OFFSET(50)] as p50_plan_time,
+  APPROX_QUANTILES(sml_parsed.total_plan_time, 100)[OFFSET(95)] as p95_plan_time
 from supamonitor_logs as sml
 cross join unnest(sml.metadata) as sml_metadata
 cross join unnest(sml_metadata.supamonitor) as sml_parsed
