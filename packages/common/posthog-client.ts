@@ -1,5 +1,7 @@
 import posthog, { PostHogConfig } from 'posthog-js'
 
+import { getFirstTouchReferrerCookie, isExternalReferrer } from './telemetry-utils'
+
 // Limit the max number of queued events
 // (e.g. if a user navigates around a lot before accepting consent)
 const MAX_PENDING_EVENTS = 20
@@ -65,6 +67,31 @@ class PostHogClient {
         // Apply pending properties that were set before PostHog
         // initialized due to poor connection or user not accepting
         // consent right away
+
+        // Fix first-touch attribution: posthog-js auto-sets $initial_referrer
+        // from document.referrer during init. When the user navigated from
+        // supabase.com (www) to supabase.com/dashboard, document.referrer is
+        // the internal supabase.com URL, not the original external source.
+        // Override with the real external referrer preserved in our first-touch
+        // cookie. Only overrides when posthog-js picked up an internal/missing
+        // referrer — never overwrites a correct external $initial_referrer from
+        // a previous session. Must happen BEFORE flushing pending events so the
+        // corrected super properties are included in the first $pageview.
+        const firstTouch = getFirstTouchReferrerCookie()
+        if (firstTouch?.referrer) {
+          const current = posthog.get_property?.('$initial_referrer')
+          const isCurrentWrong =
+            !current ||
+            current === '$direct' ||
+            (typeof current === 'string' && !isExternalReferrer(current))
+
+          if (isCurrentWrong) {
+            posthog.register({
+              $initial_referrer: firstTouch.referrer,
+              $initial_referring_domain: firstTouch.referring_domain,
+            })
+          }
+        }
 
         // Apply any pending groups
         Object.entries(this.pendingGroups).forEach(([type, id]) => {

@@ -17,9 +17,12 @@ import { useParams, useTelemetryCookie } from './hooks'
 import { posthogClient, type ClientTelemetryEvent } from './posthog-client'
 import { TelemetryEvent } from './telemetry-constants'
 import {
+  clearFirstTouchReferrerCookie,
   clearTelemetryDataCookie,
+  getFirstTouchReferrerCookie,
   getSharedTelemetryData,
   getTelemetryCookieOptions,
+  isExternalReferrer,
 } from './telemetry-utils'
 
 export { posthogClient, type ClientTelemetryEvent }
@@ -96,15 +99,6 @@ function getFirstTouchAttributionProps(telemetryData: SharedTelemetryData) {
   }
 }
 
-function isExternalReferrer(referrer: string) {
-  try {
-    const hostname = new URL(referrer).hostname
-    return hostname !== 'supabase.com' && !hostname.endsWith('.supabase.com')
-  } catch {
-    return false
-  }
-}
-
 function handlePageTelemetry(
   API_URL: string,
   pathname?: string,
@@ -121,22 +115,41 @@ function handlePageTelemetry(
     const liveReferrer = livePageData.ph.referrer
     const cookieReferrer = telemetryDataOverride?.ph?.referrer
 
-    const shouldUseCookieReferrer = Boolean(
-      cookieReferrer && isExternalReferrer(cookieReferrer) && !isExternalReferrer(liveReferrer)
+    // Try the telemetry data cookie first, then fall back to the first-touch
+    // referrer cookie. The first-touch cookie persists across www → dashboard
+    // navigation even after the telemetry data cookie has been consumed.
+    const firstTouchCookie = getFirstTouchReferrerCookie()
+
+    const externalReferrer =
+      cookieReferrer && isExternalReferrer(cookieReferrer)
+        ? cookieReferrer
+        : firstTouchCookie?.referrer ?? null
+
+    const shouldUseExternalReferrer = Boolean(
+      externalReferrer && !isExternalReferrer(liveReferrer)
     )
 
-    const pageData = telemetryDataOverride
-      ? {
-          ...livePageData,
-          ph: {
-            ...livePageData.ph,
-            referrer: shouldUseCookieReferrer ? cookieReferrer! : liveReferrer,
-          },
-        }
-      : livePageData
+    const pageData =
+      shouldUseExternalReferrer || telemetryDataOverride
+        ? {
+            ...livePageData,
+            ph: {
+              ...livePageData.ph,
+              referrer: shouldUseExternalReferrer ? externalReferrer! : liveReferrer,
+            },
+          }
+        : livePageData
+
+    // First-touch attribution props: prefer telemetry data cookie (has the
+    // landing URL with UTM params), fall back to first-touch cookie URL
     const firstTouchAttributionProps = telemetryDataOverride
       ? getFirstTouchAttributionProps(telemetryDataOverride)
-      : {}
+      : firstTouchCookie?.page_url
+        ? getFirstTouchAttributionProps({
+            ...livePageData,
+            page_url: firstTouchCookie.page_url,
+          })
+        : {}
 
     const $referrer = pageData.ph.referrer
     const $referring_domain = (() => {
@@ -427,6 +440,10 @@ export function useTelemetryIdentify(API_URL: string) {
       })
 
       posthogClient.identify(user.id, { gotrue_id: user.id })
+
+      // First-touch referrer cookie has served its purpose once the user is
+      // identified — clear it so it doesn't leak into future sessions.
+      clearFirstTouchReferrerCookie()
     }
   }, [API_URL, user?.id])
 }

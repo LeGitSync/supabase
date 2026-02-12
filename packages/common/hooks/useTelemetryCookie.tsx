@@ -1,7 +1,12 @@
 import { useEffect } from 'react'
 
 import { LOCAL_STORAGE_KEYS } from '../constants'
-import { getSharedTelemetryData, getTelemetryCookieOptions } from '../telemetry-utils'
+import {
+  getSharedTelemetryData,
+  getTelemetryCookieOptions,
+  isExternalReferrer,
+  setFirstTouchReferrerCookie,
+} from '../telemetry-utils'
 
 interface UseTelemetryCookieProps {
   enabled: boolean
@@ -18,6 +23,23 @@ export function useTelemetryCookie({ enabled }: UseTelemetryCookieProps) {
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!enabled) return
+
+    const referrer = document.referrer
+
+    // Persist external referrer in a separate first-touch cookie that survives
+    // across www → dashboard navigation (unlike the telemetry data cookie which
+    // is cleared after the initial pageview).
+    if (referrer && isExternalReferrer(referrer)) {
+      try {
+        setFirstTouchReferrerCookie({
+          referrer,
+          referring_domain: new URL(referrer).hostname,
+          page_url: window.location.href,
+        })
+      } catch {
+        // URL parsing failed, skip
+      }
+    }
 
     const cookies = document.cookie.split(';')
     const cookieOptions = getTelemetryCookieOptions()
