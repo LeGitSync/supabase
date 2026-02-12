@@ -5,7 +5,7 @@ import { Badge, Card, CardContent, CardHeader, CardTitle } from 'ui'
 import { getThreadRepliesById } from '~/data/contribute'
 import type { ThreadRow } from '~/types/contribute'
 import { HelpOnPlatformButton } from './HelpOnPlatformButton'
-import { DiscordIcon, GitHubIcon, RedditIcon } from './Icons'
+import { ChannelIcon } from './Icons'
 import { markdownComponents } from './markdownComponents'
 import { RepliesList } from './RepliesList'
 import { SimilarSolvedThreads } from './SimilarSolvedThreads'
@@ -26,108 +26,78 @@ export async function Conversation({ thread }: { thread: ThreadRow }) {
     <div className="flex flex-col gap-10">
       {/* Title, Question, and First Reply Section */}
       {question && question.content && (
-        <div className="bg-surface-200 py-4 px-[var(--card-padding-x)] rounded-lg border border-border flex flex-col gap-4">
-          {/* Platform, Date, Title, Author, and Button */}
-          <div className="pt-1 flex flex-col gap-3">
-            {/* Platform, Date */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {thread.channel === 'discord' && <DiscordIcon className="h-4 w-4 text-[#5865F2]" />}
-                {thread.channel === 'reddit' && <RedditIcon className="h-4 w-4 text-[#FF4500]" />}
-                {thread.channel === 'github' && <GitHubIcon className="h-4 w-4 text-foreground" />}
-                <p className="text-xs text-foreground-lighter">
-                  {thread.channelDisplayName}{' '} · {' '}
-                  {thread.posted}
-                </p>
-              </div>
-
-            </div>
-
-            <header className="flex flex-col gap-1">
-              <h1 className="text-2xl font-medium text-foreground text-balance">{thread.title}</h1>
-              <p className="text-xs text-foreground-lighter">
-                by{' '}
+        <div className="bg-surface-200 p-[var(--card-padding-x)] rounded-lg flex flex-col gap-6">
+          {/* Platform, Date, Author, Title */}
+          <header className="flex flex-col gap-3">
+            {/* Platform, Date, Author - logo spans both rows; platform/date and author link out */}
+            <div className="flex items-stretch gap-3">
+              <a
+                href={thread.external_activity_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center bg-surface-400 h-10 w-10 rounded-md shrink-0 self-stretch hover:opacity-80 transition-opacity"
+              >
+                <ChannelIcon channel={thread.channel} />
+              </a>
+              <div className="flex flex-col gap-0.5 justify-center min-w-0 text-left">
+                <Link
+                  href={thread.external_activity_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-foreground-light"
+                >
+                  {thread.channelDisplayName} · {thread.posted}
+                </Link>
                 <Link
                   href={`/contribute/u/${encodeURIComponent(thread.user)}`}
-                  className="hover:text-foreground transition-colors"
+                  className="text-xs text-foreground-light"
                 >
                   {thread.user}
                 </Link>
-              </p>
-            </header>
-
-            <HelpOnPlatformButton
-              type="default"
-              channel={thread.channel}
-              externalActivityUrl={thread.external_activity_url}
-            />
-
-          </div>
+              </div>
+            </div>
 
 
+            <Link
+              href={thread.external_activity_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-80 transition-opacity"
+            >
+              <h1 className="text-2xl font-medium text-foreground text-balance">{thread.title}</h1>
+            </Link>
+
+            {/* Product areas and stack */}
+            {hasMetadata && (
+              <div className="flex flex-wrap gap-0.5 items-center">
+                {productAreas.map((area: string) => (
+                  <Badge key={area} variant="default">
+                    {area}
+                  </Badge>
+                ))}
+                {productAreas.length > 0 && stackItems.length > 0 && (
+                  <span className="text-muted-foreground px-0.5">·</span>
+                )}
+                {stackItems.map((tech: string) => (
+                  <Badge key={tech} variant="default">
+                    {tech}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+          </header>
 
           {/* Question */}
           <div className="border border-border rounded-lg p-6 bg-surface-100 min-w-0 shadow-sm">
-            <div className="text-foreground mb-4 min-w-0">
+            <div className="text-foreground min-w-0">
               <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm]}>
                 {question.content}
               </ReactMarkdown>
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              {question.author && (
-                <>
-                  <Badge variant="success">OP</Badge>
-                  <Link
-                    href={`/contribute/u/${encodeURIComponent(question.author)}`}
-                    className="font-medium hover:text-foreground transition-colors"
-                  >
-                    {question.author}
-                  </Link>
-                </>
-              )}
-              {question.author && question.ts && <span>·</span>}
-              {question.ts && question.external_activity_url ? (
-                <a
-                  href={question.external_activity_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {new Date(question.ts).toLocaleString()}
-                </a>
-              ) : (
-                question.ts && <span>{new Date(question.ts).toLocaleString()}</span>
-              )}
-            </div>
           </div>
 
-          {/* Product areas and stack */}
-          {hasMetadata && (
-            <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-              {productAreas.length > 0 && (
 
-                <div className="flex flex-wrap gap-2">
-                  {productAreas.map((area: string) => (
-                    <Badge key={area} variant="default">
-                      {area}
-                    </Badge>
-                  ))}
-
-                </div>
-              )}
-              {stackItems.length > 0 && (
-
-                <div className="flex flex-wrap gap-2">
-                  {stackItems.map((tech: string) => (
-                    <Badge key={tech} variant="default">
-                      {tech}
-                    </Badge>
-                  ))}
-                </div>
-
-              )}
-            </div>
-          )}
         </div>
       )
       }
