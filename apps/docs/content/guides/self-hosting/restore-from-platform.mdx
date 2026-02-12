@@ -1,0 +1,153 @@
+---
+title: 'Restore a Platform Project to Self-Hosted'
+description: 'Restore your database from the Supabase platform to a self-hosted instance.'
+subtitle: 'Restore your database from the Supabase platform to a self-hosted instance.'
+---
+
+This guide walks you through restoring your database from a Supabase platform project to a [self-hosted Docker instance](/docs/guides/self-hosting/docker). Storage objects transfer or redeploying edge functions is not covered here.
+
+## Before you begin
+
+You need:
+
+- A running self-hosted Supabase instance ([Docker setup guide](/docs/guides/self-hosting/docker))
+- [Supabase CLI](/docs/guides/local-development/cli/getting-started) installed
+- [Docker Desktop](https://www.docker.com) installed (required by the CLI)
+- `psql` installed ([official installation guide](https://www.postgresql.org/download/))
+- Your Supabase database passwords (for platform and self-hosted)
+
+## Step 1: Get your platform connection string
+
+On your managed Supabase project dashboard, click [Connect](/dashboard/project/_?showConnect=true) and copy the connection string (use the session pooler or direct connection).
+
+## Step 2: Back up your platform database
+
+Export roles, schema, and data as three separate SQL files:
+
+```bash
+supabase db dump --db-url [CONNECTION_STRING] -f roles.sql --role-only
+supabase db dump --db-url [CONNECTION_STRING] -f schema.sql
+supabase db dump --db-url [CONNECTION_STRING] -f data.sql --use-copy --data-only
+```
+
+This produces SQL files that are compatible across PostgreSQL versions.
+
+## Step 3: Prepare your self-hosted instance
+
+Before restoring, check the following on your self-hosted instance:
+
+- **Extensions**: Enable any non-default extensions your Supabase project uses. You can check which extensions are active by querying `select * from pg_extension;` on your managed database (or check Database Extensions in Dashboard).
+
+## Step 4: Restore to your self-hosted database
+
+Connect to your self-hosted Postgres and restore the dump files. The [default](https://supabase.com/docs/guides/self-hosting/docker#accessing-postgres) connection string for self-hosted Supabase is:
+
+```
+postgres://postgres.your-tenant-id:[POSTGRES_PASSWORD]@[your-domain]:5432/postgres
+```
+
+Where `[POSTGRES_PASSWORD]` is the value of `POSTGRES_PASSWORD` in your self-hosted `.env` file.
+
+Run `psql` to restore:
+
+```bash
+psql \
+  --single-transaction \
+  --variable ON_ERROR_STOP=1 \
+  --file roles.sql \
+  --file schema.sql \
+  --command 'SET session_replication_role = replica' \
+  --file data.sql \
+  --dbname "postgres://postgres.your-tenant-id:[POSTGRES_PASSWORD]@[your-domain]:5432/postgres"
+```
+
+Setting `session_replication_role` to `replica` disables triggers during the data import, preventing issues like double-encryption of columns.
+
+## Step 5: Verify the restore
+
+Connect to your self-hosted database and run a few checks:
+
+```bash
+psql "postgres://postgres.your-tenant-id:[POSTGRES_PASSWORD]@[your-domain]:5432/postgres"
+```
+
+```sql
+-- Check your tables are present
+\dt public.*
+
+-- Verify row counts on key tables
+SELECT count(*) FROM auth.users;
+
+-- Check extensions
+SELECT * FROM pg_extension;
+```
+
+## What's included and what's not
+
+The database dump includes your schema, data, roles, RLS policies, database functions, triggers, and `auth.users`. However, several things require separate configuration on your self-hosted instance:
+
+| Requires manual setup | How to configure |
+| --- | --- |
+| JWT secrets and API keys | Generate new ones and update `.env` |
+| Auth provider settings (OAuth, Apple, etc.) | Configure `GOTRUE_EXTERNAL_*` variables in `.env` |
+| Edge functions | Manually copy to your self-hosted instance |
+| Storage objects | Transfer separately (not covered in this guide) |
+| SMTP / email settings | Configure `SMTP_*` variables in `.env` |
+| Custom domains and DNS | Point your DNS to the self-hosted server |
+
+## Auth considerations
+
+Your `auth.users` table and related data are included in the database dump, so user accounts are preserved. However:
+
+- **JWT secrets differ** between your platform and self-hosted instances. Existing tokens issued by the platform project will not be valid. Users will need to re-authenticate.
+- **Social auth providers** (Apple, Google, GitHub, etc.) need to be configured in your self-hosted `.env` file. Set the relevant `GOTRUE_EXTERNAL_*` variables. See the Auth repository [README](https://github.com/supabase/auth) for all available options.
+- **Redirect URLs** in your OAuth provider consoles (Apple Developer, Google Cloud Console, etc.) must be updated to point to your self-hosted hostname instead of `*.supabase.co`.
+
+## Postgres version compatibility
+
+Managed Supabase may run a newer Postgres version (Postgres 17) than the self-hosted Docker image (currently Postgres 15). The `supabase db dump` command produces plain SQL files that work across major Postgres versions.
+
+Keep in mind:
+
+- If your platform database uses features specific to a newer Postgres, the restore may fail. This should be rare in standard Supabase usage.
+- Run the restore on a test self-hosted instance first if you're unsure about compatibility.
+- Check that all extensions you use are available on the self-hosted Postgres version.
+
+## Troubleshooting
+
+### Permission errors with `supabase_admin`
+
+If you see errors like `must be able to SET ROLE "supabase_admin"` or `ALTER ... OWNER TO "supabase_admin"` during restore, this is because the non-superuser `postgres` role doesn't have permission to execute `ALTER ... OWNER TO "supabase_admin"` statements that appear in the dump for Supabase-internal schemas (`auth`, `storage`, `realtime`, `extensions`, etc.).
+
+Since you're restoring to a fresh self-hosted instance, these schemas are already set up during Docker initialization and the ownership statements from the dump are unnecessary. Your user objects in the `public` schema are owned by `postgres` on both platform and self-hosted, so they restore without issues.
+
+**Workaround:** Before restoring, comment out the ownership statements from `schema.sql`:
+
+```bash
+sed -i 's/ALTER .* OWNER TO "supabase_admin"/-- &/' schema.sql
+```
+
+### Extension not available
+
+If the restore fails because an extension isn't available, check whether it's supported on your self-hosted PostgreSQL version. You can list available extensions with:
+
+```sql
+SELECT * FROM pg_available_extensions;
+```
+
+### Connection refused
+
+Make sure your self-hosted Postgres port is accessible. In the default [self-hosted Supabase](/docs/guides/self-hosting/docker#accessing-postgres) setup, the user is `postgres.your-tenant-id` with Supavisor on port `5432`.
+
+### Custom roles missing passwords
+
+If you created custom database roles with the `LOGIN` attribute on your platform project, their passwords are not included in the dump. Set them manually after restore:
+
+```sql
+ALTER ROLE your_custom_role WITH PASSWORD 'new-password';
+```
+
+### Additional resources
+
+- [Backup and Restore using the CLI](/docs/guides/platform/migrating-within-supabase/backup-restore)
+- [Restore Dashboard backup](https://supabase.com/docs/guides/platform/migrating-within-supabase/dashboard-restore)
