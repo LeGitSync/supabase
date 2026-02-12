@@ -30,11 +30,11 @@ supabase db dump --db-url [CONNECTION_STRING] -f schema.sql
 supabase db dump --db-url [CONNECTION_STRING] -f data.sql --use-copy --data-only
 ```
 
-This produces SQL files that are compatible across PostgreSQL versions.
+This produces SQL files that are compatible across Postgres versions.
 
 <Admonition type="note">
 
-Using `supabase db dump` executes `pg_dump` under the hood but applies Supabase-specific filtering - it excludes internal schemas, strips reserved roles, and adds idempotent `IF NOT EXISTS` clauses. Using raw `pg_dump` directly will include Supabase internals and cause permission errors during restore. CLI requires Docker because it runs `pg_dump` inside a container from the Supabase Postgres image rather than requiring a local PostgreSQL installation.
+Using `supabase db dump` executes `pg_dump` under the hood but applies Supabase-specific filtering - it excludes internal schemas, strips reserved roles, and adds idempotent `IF NOT EXISTS` clauses. Using raw `pg_dump` directly will include Supabase internals and cause permission errors during restore. CLI requires Docker because it runs `pg_dump` inside a container from the Supabase Postgres image rather than requiring a local Postgres installation.
 
 </Admonition>
 
@@ -46,7 +46,7 @@ Before restoring, check the following on your self-hosted instance:
 
 ## Step 4: Restore to your self-hosted database
 
-Connect to your self-hosted Postgres and restore the dump files. The [default](https://supabase.com/docs/guides/self-hosting/docker#accessing-postgres) connection string for self-hosted Supabase is:
+Connect to your self-hosted Postgres and restore the dump files. The [default](/docs/guides/self-hosting/docker#accessing-postgres) connection string for self-hosted Supabase is:
 
 ```
 postgres://postgres.your-tenant-id:[POSTGRES_PASSWORD]@[your-domain]:5432/postgres
@@ -123,7 +123,7 @@ Keep in mind:
 
 ### Extension not available
 
-If the restore fails because an extension isn't available, check whether it's supported on your self-hosted PostgreSQL version. You can list available extensions with:
+If the restore fails because an extension isn't available, check whether it's supported on your self-hosted Postgres version. You can list available extensions with:
 
 ```sql
 SELECT * FROM pg_available_extensions;
@@ -144,4 +144,4 @@ ALTER ROLE your_custom_role WITH PASSWORD 'new-password';
 ### Additional resources
 
 - [Backup and Restore using the CLI](/docs/guides/platform/migrating-within-supabase/backup-restore)
-- [Restore Dashboard backup](https://supabase.com/docs/guides/platform/migrating-within-supabase/dashboard-restore)
+- [Restore Dashboard backup](/docs/guides/platform/migrating-within-supabase/dashboard-restore)
