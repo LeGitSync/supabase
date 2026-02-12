@@ -135,11 +135,11 @@ The platform may run a newer Postgres version (17 vs 15) and newer Auth service 
 
 **Common issues in `data.sql`:**
 
-- `SET transaction_timeout = 0` — a Postgres 17-only setting that fails on Postgres 15
-- `COPY` statements for tables that don't exist on self-hosted (e.g. `auth.oauth_clients`, `storage.buckets_vectors`, `storage.vector_indexes`)
-- `COPY` statements with columns added in newer Auth versions (e.g. `auth.flow_state` with `oauth_client_state_id`, `linking_target_id`)
+- `SET transaction_timeout = 0` - a Postgres 17-only setting that fails on Postgres 15
+- `COPY` statements for tables that don't exist on self-hosted (e.g., `auth.oauth_clients`, `storage.buckets_vectors`, `storage.vector_indexes`)
+- `COPY` statements with columns added in newer Auth versions (e.g., `auth.flow_state` with `oauth_client_state_id`, `linking_target_id`)
 
-**Fix:** Edit `data.sql` before restoring:
+**Workaround:** Edit `data.sql` before restoring:
 
 ```bash
 # Comment out PG17-only transaction_timeout
