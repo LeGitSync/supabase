@@ -98,8 +98,9 @@ export const RolesList = () => {
   useEffect(() => {
     if (isSuccess && !!selectedRoleIdToDelete && !roleToDelete && !isSuccessDelete) {
       toast('Role cannot be round')
+      setSelectedRoleIdToDelete(null)
     }
-  }, [isSuccess, selectedRoleIdToDelete, roleToDelete, isSuccessDelete])
+  }, [isSuccess, selectedRoleIdToDelete, roleToDelete, isSuccessDelete, setSelectedRoleIdToDelete])
 
   return (
     <>
