@@ -50,10 +50,6 @@ export const DatabaseInfrastructureSection = ({
   const { data: project } = useSelectedProjectQuery()
   const databaseReportMetrics = useFlag('DatabaseReportMetrics')
 
-  if (!databaseReportMetrics) {
-    return null
-  }
-
   // refreshKey forces date recalculation when user clicks refresh button
   // Use provided dates if available, otherwise calculate from interval
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -182,6 +178,10 @@ export const DatabaseInfrastructureSection = ({
   }
 
   const databaseReportUrl = getDatabaseReportUrl()
+
+  if (!databaseReportMetrics) {
+    return null
+  }
 
   return (
     <div>
