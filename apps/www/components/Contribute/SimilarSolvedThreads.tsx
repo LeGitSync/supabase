@@ -1,15 +1,38 @@
 'use client'
 
 import { useState } from 'react'
-import { Badge, Card, CardContent, CardFooter, CardHeader, cn } from 'ui'
-import { ChevronDown } from 'lucide-react'
+import {
+  Badge,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  cn,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Textarea,
+} from 'ui'
+import { ChevronDown, ThumbsUp, ThumbsDown, MessageSquarePlus } from 'lucide-react'
 import type {
   SimilarSolvedThread,
-  SimilarThreadFeedbackSubmission,
-  SimilarThreadFeedbackResult,
+  SimilarThreadFeedbackReaction,
   ThreadSource,
 } from '~/types/contribute'
+import { submitSimilarThreadFeedback, updateSimilarThreadFeedback } from '~/data/contribute'
 import { ChannelIcon } from './Icons'
+
+/**
+ * Mock mode: skip real API calls, fake success for frontend design.
+ * Set to false when backend RLS is fixed.
+ */
+const MOCK_FEEDBACK = true
+
+/** When MOCK_FEEDBACK is true, use this to jump to a state for design. */
+type MockState = 'idle' | 'thanks' | 'dialog'
 
 function getChannelFromUrl(url: string): ThreadSource {
   const u = url.toLowerCase()
@@ -19,24 +42,9 @@ function getChannelFromUrl(url: string): ThreadSource {
   return 'github'
 }
 
-/**
- * Placeholder -- will be replaced with a real API call that inserts into
- * the similar_thread_feedback table
- * (parent_thread_id, similar_thread_key, reaction, feedback, created_at).
- */
-export const submitSimilarThreadFeedback = async (
-  submission: SimilarThreadFeedbackSubmission
-): Promise<SimilarThreadFeedbackResult> => {
-  console.log('[SimilarThreadFeedback] submitting:', {
-    ...submission,
-    created_at: new Date().toISOString(),
-  })
-  await new Promise((resolve) => setTimeout(resolve, 800))
-  return { success: true }
-}
-
 interface SimilarSolvedThreadsProps {
   threads: SimilarSolvedThread[]
+  parentThreadId: string
 }
 
 const SimilarThreadCard = ({
@@ -99,11 +107,100 @@ const SimilarThreadCard = ({
   return <div className={linkClassName}>{content}</div>
 }
 
-export const SimilarSolvedThreads = ({ threads }: SimilarSolvedThreadsProps) => {
+export const SimilarSolvedThreads = ({ threads, parentThreadId }: SimilarSolvedThreadsProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [submittedReaction, setSubmittedReaction] = useState<SimilarThreadFeedbackReaction | null>(
+    null
+  )
+  const [feedbackId, setFeedbackId] = useState<string | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogReaction, setDialogReaction] = useState<SimilarThreadFeedbackReaction>('positive')
+  const [dialogFeedback, setDialogFeedback] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleThumbClick = async (reaction: SimilarThreadFeedbackReaction) => {
+    if (submittedReaction) return
+    setIsSubmitting(true)
+    const result = MOCK_FEEDBACK
+      ? await (async () => {
+        await new Promise((r) => setTimeout(r, 400))
+        return { success: true as const, id: 'mock-feedback-id' }
+      })()
+      : await submitSimilarThreadFeedback({
+        parentThreadId,
+        reaction,
+        similarThreadKey: null,
+      })
+    setIsSubmitting(false)
+    if (result.success) {
+      setSubmittedReaction(reaction)
+      setFeedbackId(result.id ?? null)
+      setDialogReaction(reaction)
+      setDialogFeedback('')
+    }
+  }
+
+  const handleTellUsMoreSubmit = async () => {
+    if (!feedbackId) return
+    setIsSubmitting(true)
+    const result = MOCK_FEEDBACK
+      ? await (async () => {
+        await new Promise((r) => setTimeout(r, 400))
+        return { success: true as const }
+      })()
+      : await updateSimilarThreadFeedback(
+        feedbackId,
+        dialogReaction,
+        dialogFeedback.trim() || null
+      )
+    setIsSubmitting(false)
+    if (result.success) {
+      setSubmittedReaction(dialogReaction)
+      setDialogOpen(false)
+    }
+  }
+
+  const setMockState = (state: MockState) => {
+    if (!MOCK_FEEDBACK) return
+    if (state === 'idle') {
+      setSubmittedReaction(null)
+      setFeedbackId(null)
+      setDialogOpen(false)
+    } else if (state === 'thanks') {
+      setSubmittedReaction('positive')
+      setFeedbackId('mock-feedback-id')
+      setDialogOpen(false)
+    } else {
+      setSubmittedReaction('positive')
+      setFeedbackId('mock-feedback-id')
+      setDialogOpen(true)
+    }
+  }
 
   return (
     <Card className={cn('relative')}>
+      {MOCK_FEEDBACK && (
+        <div className="px-[var(--card-padding-x)] py-2 border-b border-dashed border-amber-500/50 bg-amber-500/5 text-xs font-mono">
+          <span className="text-foreground-muted">Mock:</span>{' '}
+          {(['idle', 'thanks', 'dialog'] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setMockState(s)}
+              className={cn(
+                'ml-2 px-2 py-0.5 rounded',
+                (s === 'idle' && !submittedReaction) ||
+                  (s === 'thanks' && submittedReaction && !dialogOpen) ||
+                  (s === 'dialog' && dialogOpen)
+                  ? 'bg-amber-500/20 text-foreground'
+                  : 'hover:bg-amber-500/10 text-foreground-lighter'
+              )}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
       <CardHeader className={cn('p-0', !isExpanded && 'border-b-0')}>
         <button
           type="button"
@@ -129,11 +226,111 @@ export const SimilarSolvedThreads = ({ threads }: SimilarSolvedThreadsProps) => 
               />
             ))}
           </CardContent>
-          <CardFooter>
-            <p className="text-xs text-foreground-muted">Collected from community discussions</p>
+          <CardFooter className="flex items-center justify-between">
+            {submittedReaction ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-foreground-lighter">Thanks!</span>
+                <button
+                  type="button"
+                  onClick={() => setDialogOpen(true)}
+                  className="text-sm text-foreground-light hover:text-foreground transition-colors inline-flex items-center gap-1"
+                >
+                  <MessageSquarePlus className="h-4 w-4" />
+                  Tell us more?
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => handleThumbClick('positive')}
+                  disabled={isSubmitting}
+                  className="p-1 rounded hover:bg-surface-200 transition-colors disabled:opacity-50"
+                  aria-label="Helpful"
+                >
+                  <ThumbsUp className="h-4 w-4 text-foreground-muted" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleThumbClick('negative')}
+                  disabled={isSubmitting}
+                  className="p-1 rounded hover:bg-surface-200 transition-colors disabled:opacity-50"
+                  aria-label="Not helpful"
+                >
+                  <ThumbsDown className="h-4 w-4 text-foreground-muted" />
+                </button>
+              </div>
+            )}
           </CardFooter>
         </>
       )}
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tell us more</DialogTitle>
+            <DialogDescription>
+              Change your rating or add optional feedback to help us improve.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-foreground-lighter">Were these helpful?</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setDialogReaction('positive')}
+                  className={cn(
+                    'p-2 rounded transition-colors',
+                    dialogReaction === 'positive'
+                      ? 'bg-surface-300 text-foreground'
+                      : 'hover:bg-surface-200 text-foreground-lighter'
+                  )}
+                  aria-label="Helpful"
+                >
+                  <ThumbsUp className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDialogReaction('negative')}
+                  className={cn(
+                    'p-2 rounded transition-colors',
+                    dialogReaction === 'negative'
+                      ? 'bg-surface-300 text-foreground'
+                      : 'hover:bg-surface-200 text-foreground-lighter'
+                  )}
+                  aria-label="Not helpful"
+                >
+                  <ThumbsDown className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="feedback" className="block text-sm text-foreground-lighter mb-2">
+                Additional feedback (optional)
+              </label>
+              <Textarea
+                id="feedback"
+                placeholder="Anything else you'd like to share?"
+                value={dialogFeedback}
+                onChange={(e) => setDialogFeedback(e.target.value)}
+                rows={3}
+                className="w-full"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={handleTellUsMoreSubmit}
+              disabled={isSubmitting}
+              className="px-4 py-2 rounded-md text-sm font-medium bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-opacity"
+            >
+              {isSubmitting ? 'Saving…' : 'Submit'}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

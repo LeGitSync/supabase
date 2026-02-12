@@ -62,6 +62,33 @@ export type Database = {
         }
         Relationships: []
       }
+      contribute_similar_thread_feedback: {
+        Row: {
+          id: string
+          parent_thread_id: string
+          similar_thread_key: string | null
+          reaction: string
+          feedback: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          parent_thread_id: string
+          similar_thread_key?: string | null
+          reaction: string
+          feedback?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          parent_thread_id?: string
+          similar_thread_key?: string | null
+          reaction?: string
+          feedback?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       contribute_threads: {
         Row: {
           author: string

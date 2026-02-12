@@ -57,11 +57,12 @@ export type SimilarThreadFeedbackReaction = 'positive' | 'negative'
 
 export interface SimilarThreadFeedbackSubmission {
   parentThreadId: string // the thread being viewed (e.g. "860-6_dm")
-  similarThreadKey: string // the similar suggestion reacted to
+  similarThreadKey?: string | null // optional for section-level feedback
   reaction: SimilarThreadFeedbackReaction // positive = thumbs-up, negative = thumbs-down
-  feedback?: string // optional freeform text from MessageSquareMore dialog
+  feedback?: string | null // optional freeform text from dialog
 }
 
 export interface SimilarThreadFeedbackResult {
   success: boolean
+  id?: string // returned from insert for subsequent update
 }

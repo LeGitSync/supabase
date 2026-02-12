@@ -128,11 +128,9 @@ export async function Conversation({ thread }: { thread: ThreadRow }) {
       }
 
       {/* Similar Solved Threads */}
-      {
-        thread.similar_solved_threads && thread.similar_solved_threads.length > 0 && (
-          <SimilarSolvedThreads threads={thread.similar_solved_threads} />
-        )
-      }
+      {thread.similar_solved_threads && thread.similar_solved_threads.length > 0 && (
+        <SimilarSolvedThreads threads={thread.similar_solved_threads} parentThreadId={thread.id} />
+      )}
 
       {/* Remaining Replies Section */}
       {

@@ -2,6 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 import type {
   LeaderboardRow,
   SimilarSolvedThread,
+  SimilarThreadFeedbackResult,
+  SimilarThreadFeedbackSubmission,
   Thread,
   ThreadRow,
   ThreadSource,
@@ -345,4 +347,48 @@ export async function getUserActivity(author: string) {
       replyCount: replies?.length ?? 0,
     },
   }
+}
+
+export async function submitSimilarThreadFeedback(
+  submission: SimilarThreadFeedbackSubmission
+): Promise<SimilarThreadFeedbackResult> {
+  const supabase = createClient(supabaseUrl, supabasePublishableKey)
+
+  const { data, error } = await supabase
+    .from('contribute_similar_thread_feedback')
+    .insert({
+      parent_thread_id: submission.parentThreadId,
+      similar_thread_key: submission.similarThreadKey ?? null,
+      reaction: submission.reaction,
+      feedback: submission.feedback ?? null,
+    })
+    .select('id')
+    .single()
+
+  if (error) {
+    console.error('[SimilarThreadFeedback] insert error:', error)
+    return { success: false }
+  }
+
+  return { success: true, id: data?.id }
+}
+
+export async function updateSimilarThreadFeedback(
+  id: string,
+  reaction: 'positive' | 'negative',
+  feedback: string | null
+): Promise<SimilarThreadFeedbackResult> {
+  const supabase = createClient(supabaseUrl, supabasePublishableKey)
+
+  const { error } = await supabase
+    .from('contribute_similar_thread_feedback')
+    .update({ reaction, feedback })
+    .eq('id', id)
+
+  if (error) {
+    console.error('[SimilarThreadFeedback] update error:', error)
+    return { success: false }
+  }
+
+  return { success: true }
 }
