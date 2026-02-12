@@ -10,7 +10,7 @@ This guide walks you through restoring your database from a Supabase platform pr
 
 You need:
 
-- A running self-hosted Supabase instance ([Docker setup guide](/docs/guides/self-hosting/docker))
+- A new self-hosted Supabase instance ([Docker setup guide](/docs/guides/self-hosting/docker))
 - [Supabase CLI](/docs/guides/local-development/cli/getting-started) installed (or use `npx supabase`)
 - [Docker Desktop](https://docs.docker.com/get-started/get-docker/) installed (required by the CLI)
 - `psql` installed ([official installation guide](https://www.postgresql.org/download/))
@@ -132,6 +132,10 @@ SELECT * FROM pg_available_extensions;
 ### Connection refused
 
 Make sure your self-hosted Postgres port is accessible. In the default [self-hosted Supabase](/docs/guides/self-hosting/docker#accessing-postgres) setup, the user is `postgres.your-tenant-id` with Supavisor on port `5432`.
+
+### Legacy Studio configuration
+
+Studio in self-hosted Supabase historically used `supabase_admin` role (superuser) instead of `postgres`. Objects created via Studio UI were owned by `supabase_admin`. Check your `docker-compose.yml` [configuration](https://github.com/supabase/supabase/blob/2cb5befaa377a42b6d6ca152b98105b59054f2f4/docker/docker-compose.yml#L30) to see if `POSTGRES_USER_READ_WRITE` is set to `postgres`.
 
 ### Custom roles missing passwords
 
