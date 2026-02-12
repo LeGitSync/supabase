@@ -4,8 +4,8 @@ export const SystemStatusIcon = ({ status }: { status: SystemStatus }) => {
   const getFillColor = (status: SystemStatus) => {
     switch (status) {
       case 'operational':
-        return 'hsl(var(--brand-default))'
       case 'maintenance':
+        return 'hsl(var(--brand-default))'
       case 'incident':
         return 'hsl(var(--warning-default))'
       default:
