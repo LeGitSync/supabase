@@ -4,6 +4,7 @@ import { useInfraMonitoringAttributesQuery } from 'data/analytics/infra-monitori
 import { useMaxConnectionsQuery } from 'data/database/max-connections-query'
 import dayjs from 'dayjs'
 import { useSelectedProjectQuery } from 'hooks/misc/useSelectedProject'
+import { formatBytes } from 'lib/helpers'
 import Link from 'next/link'
 import { useMemo } from 'react'
 import { cn, Tooltip, TooltipContent, TooltipTrigger } from 'ui'
@@ -134,6 +135,28 @@ export const DatabaseInfrastructureSection = ({
     () => parseConnectionsData(infraData, maxConnectionsData),
     [infraData, maxConnectionsData]
   )
+
+  const diskDetails = useMemo(() => {
+    if (!infraData) return null
+    const series = 'series' in infraData ? infraData.series : {}
+
+    const parseValue = (val: string | number | undefined): number => {
+      if (typeof val === 'number') return val
+      if (typeof val === 'string') return parseFloat(val) || 0
+      return 0
+    }
+
+    const diskSystemValue = parseValue(series.disk_fs_used_system?.totalAverage)
+    const diskWalValue = parseValue(series.disk_fs_used_wal?.totalAverage)
+    const diskDatabaseValue = parseValue(series.pg_database_size?.totalAverage)
+    const diskSizeValue = parseValue(series.disk_fs_size?.totalAverage)
+    const diskUsedValue = diskSystemValue + diskWalValue + diskDatabaseValue
+
+    return {
+      used: diskUsedValue,
+      total: diskSizeValue,
+    }
+  }, [infraData])
 
   const cacheHitRate = queryMetrics?.[0]?.cache_hit_rate || '0%'
 
@@ -292,8 +315,20 @@ export const DatabaseInfrastructureSection = ({
               <MetricCardContent>
                 {infraError ? (
                   <div className="text-xs text-destructive break-words">{errorMessage}</div>
-                ) : metrics ? (
-                  <MetricCardValue>{metrics.disk.current.toFixed(0)}%</MetricCardValue>
+                ) : metrics && diskDetails ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <MetricCardValue className="cursor-help border-b border-dashed border-foreground-lighter">
+                        {metrics.disk.current.toFixed(0)}%
+                      </MetricCardValue>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="text-xs">
+                        <div>Used: {formatBytes(diskDetails.used)}</div>
+                        <div>Total: {formatBytes(diskDetails.total)}</div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
                 ) : (
                   <MetricCardValue>--</MetricCardValue>
                 )}
@@ -310,8 +345,20 @@ export const DatabaseInfrastructureSection = ({
             <MetricCardContent>
               {infraError ? (
                 <div className="text-xs text-destructive break-words">{errorMessage}</div>
-              ) : metrics ? (
-                <MetricCardValue>{metrics.disk.current.toFixed(0)}%</MetricCardValue>
+              ) : metrics && diskDetails ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <MetricCardValue className="cursor-help border-b border-dashed border-foreground-lighter">
+                      {metrics.disk.current.toFixed(0)}%
+                    </MetricCardValue>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="text-xs">
+                      <div>Used: {formatBytes(diskDetails.used)}</div>
+                      <div>Total: {formatBytes(diskDetails.total)}</div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
               ) : (
                 <MetricCardValue>--</MetricCardValue>
               )}
