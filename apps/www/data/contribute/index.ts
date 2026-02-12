@@ -380,13 +380,20 @@ export async function updateSimilarThreadFeedback(
 ): Promise<SimilarThreadFeedbackResult> {
   const supabase = createClient(supabaseUrl, supabasePublishableKey)
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('contribute_similar_thread_feedback')
     .update({ reaction, feedback })
     .eq('id', id)
+    .select('id')
+    .single()
 
   if (error) {
     console.error('[SimilarThreadFeedback] update error:', error)
+    return { success: false }
+  }
+
+  if (!data) {
+    console.error('[SimilarThreadFeedback] update error: record not found')
     return { success: false }
   }
 

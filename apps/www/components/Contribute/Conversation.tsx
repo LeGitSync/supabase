@@ -40,14 +40,14 @@ export async function Conversation({ thread }: { thread: ThreadRow }) {
                 <ChannelIcon channel={thread.channel} />
               </a>
               <div className="flex flex-col gap-0.5 justify-center min-w-0 text-left">
-                <Link
+                <a
                   href={thread.external_activity_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-foreground-light hover:text-foreground transition-colors"
                 >
                   {thread.channelDisplayName} · {thread.posted}
-                </Link>
+                </a>
                 <Link
                   href={`/contribute/u/${encodeURIComponent(thread.user)}`}
                   className="text-xs text-foreground-light hover:text-foreground transition-colors"
@@ -57,14 +57,14 @@ export async function Conversation({ thread }: { thread: ThreadRow }) {
               </div>
             </div>
 
-            <Link
+            <a
               href={thread.external_activity_url}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:opacity-80 transition-opacity"
             >
               <h1 className="text-2xl font-medium text-foreground text-balance">{thread.title}</h1>
-            </Link>
+            </a>
 
             {/* Product areas and stack */}
             {hasMetadata && (
