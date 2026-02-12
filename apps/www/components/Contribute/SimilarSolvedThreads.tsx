@@ -131,14 +131,14 @@ export const SimilarSolvedThreads = ({ threads, parentThreadId }: SimilarSolvedT
     setIsSubmitting(true)
     const result = MOCK_FEEDBACK
       ? await (async () => {
-        await new Promise((r) => setTimeout(r, 400))
-        return { success: true as const, id: 'mock-feedback-id' }
-      })()
+          await new Promise((r) => setTimeout(r, 400))
+          return { success: true as const, id: 'mock-feedback-id' }
+        })()
       : await submitSimilarThreadFeedback({
-        parentThreadId,
-        reaction,
-        similarThreadKey: null,
-      })
+          parentThreadId,
+          reaction,
+          similarThreadKey: null,
+        })
     setIsSubmitting(false)
     if (result.success) {
       setFeedbackId(result.id ?? null)
@@ -153,9 +153,9 @@ export const SimilarSolvedThreads = ({ threads, parentThreadId }: SimilarSolvedT
     setIsSubmitting(true)
     const result = MOCK_FEEDBACK
       ? await (async () => {
-        await new Promise((r) => setTimeout(r, 400))
-        return { success: true as const }
-      })()
+          await new Promise((r) => setTimeout(r, 400))
+          return { success: true as const }
+        })()
       : await updateSimilarThreadFeedback(feedbackId, dialogReaction, dialogFeedback.trim() || null)
     setIsSubmitting(false)
     if (result.success) {
@@ -201,8 +201,9 @@ export const SimilarSolvedThreads = ({ threads, parentThreadId }: SimilarSolvedT
           Related solved threads
           <span className="text-foreground-muted tabular-nums font-normal">({threads.length})</span>
           <ChevronDown
-            className={`h-3.5 w-3.5 text-foreground-lighter transition-transform duration-200 ${isExpanded ? 'rotate-0' : '-rotate-90'
-              }`}
+            className={`h-3.5 w-3.5 text-foreground-lighter transition-transform duration-200 ${
+              isExpanded ? 'rotate-0' : '-rotate-90'
+            }`}
           />
         </button>
       </CardHeader>
