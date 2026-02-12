@@ -25,9 +25,15 @@ On your managed Supabase project dashboard, click [Connect](/dashboard/project/_
 Export roles, schema, and data as three separate SQL files:
 
 ```bash
-supabase db dump --db-url [CONNECTION_STRING] -f roles.sql --role-only
-supabase db dump --db-url [CONNECTION_STRING] -f schema.sql
-supabase db dump --db-url [CONNECTION_STRING] -f data.sql --use-copy --data-only
+supabase db dump --db-url "[CONNECTION_STRING]" -f roles.sql --role-only
+```
+
+```bash
+supabase db dump --db-url "[CONNECTION_STRING]" -f schema.sql
+```
+
+```bash
+supabase db dump --db-url "[CONNECTION_STRING]" -f data.sql --use-copy --data-only
 ```
 
 This produces SQL files that are compatible across Postgres versions.
@@ -53,6 +59,8 @@ postgres://postgres.your-tenant-id:[POSTGRES_PASSWORD]@[your-domain]:5432/postgr
 ```
 
 Where `[POSTGRES_PASSWORD]` is the value of `POSTGRES_PASSWORD` in your self-hosted `.env` file.
+
+Use your domain name, your server IP, or localhost for `[your-domain]` depending on whether you are running self-hosted Supabase on a VPS, or locally.
 
 Run `psql` to restore:
 
@@ -115,11 +123,32 @@ Managed Supabase may run a newer Postgres version (Postgres 17) than the self-ho
 
 Keep in mind:
 
-- If your platform database uses features specific to a newer Postgres, the restore may fail. This should be rare in standard Supabase usage.
-- Run the restore on a test self-hosted instance first if you're unsure about compatibility.
+- The data dump may include Postgres 17-only settings or reference tables/columns from newer Auth and Storage versions that don't exist on self-hosted yet. See [Version mismatches](#version-mismatches-between-platform-and-self-hosted) in the troubleshooting section.
+- Run the restore on a test self-hosted instance first to identify any incompatibilities.
 - Check that all extensions you use are available on the self-hosted Postgres version.
 
 ## Troubleshooting
+
+### Version mismatches between platform and self-hosted
+
+The platform may run a newer Postgres version (17 vs 15) and newer Auth service versions than self-hosted. The data dump can contain settings, tables, or columns that don't exist on your new self-hosted instance.
+
+**Common issues in `data.sql`:**
+
+- `SET transaction_timeout = 0` — a Postgres 17-only setting that fails on Postgres 15
+- `COPY` statements for tables that don't exist on self-hosted (e.g. `auth.oauth_clients`, `storage.buckets_vectors`, `storage.vector_indexes`)
+- `COPY` statements with columns added in newer Auth versions (e.g. `auth.flow_state` with `oauth_client_state_id`, `linking_target_id`)
+
+**Fix:** Edit `data.sql` before restoring:
+
+```bash
+# Comment out PG17-only transaction_timeout
+sed -i 's/^SET transaction_timeout/-- &/' data.sql
+```
+
+For missing tables or column mismatches, comment out the relevant `COPY ... FROM stdin;` line and its corresponding `\.` terminator. Run the restore without `--single-transaction` first to identify all failures, then fix them and run the final restore with `--single-transaction`.
+
+Keeping your self-hosted configuration [up to date](https://github.com/supabase/supabase/blob/master/docker/CHANGELOG.md) will minimize these gaps.
 
 ### Extension not available
 
