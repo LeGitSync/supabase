@@ -44,13 +44,13 @@ export async function Conversation({ thread }: { thread: ThreadRow }) {
                   href={thread.external_activity_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-foreground-light"
+                  className="text-xs text-foreground-light hover:text-foreground transition-colors"
                 >
                   {thread.channelDisplayName} · {thread.posted}
                 </Link>
                 <Link
                   href={`/contribute/u/${encodeURIComponent(thread.user)}`}
-                  className="text-xs text-foreground-light"
+                  className="text-xs text-foreground-light hover:text-foreground transition-colors"
                 >
                   {thread.user}
                 </Link>

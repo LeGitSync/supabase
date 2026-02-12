@@ -38,7 +38,7 @@ export function RepliesList({ replies, questionAuthor, totalReplyCount }: Replie
       <Card className="relative">
         <CardHeader>
           <CardTitle>
-            {displayCount} {displayCount === 1 ? 'reply' : 'replies'}
+            Replies <span className="text-foreground-muted tabular-nums font-normal">({displayCount})</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col p-0">
