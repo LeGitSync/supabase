@@ -60,17 +60,17 @@ const SimilarThreadCard = ({
       <div className="flex items-center justify-center bg-surface-200 h-10 w-10 rounded-md shrink-0">
         <ChannelIcon channel={channel} />
       </div>
-      <div className="min-w-0 flex-1 flex flex-col gap-y-0.5">
-        <span className="text-base text-foreground truncate block">
+      <div className="min-w-0 flex-1 flex flex-col">
+        <h4 className="text-base text-foreground truncate block">
           {thread.subject}
-        </span>
+        </h4>
         {thread.problem_description ? (
           <p className="text-sm text-foreground-lighter leading-relaxed line-clamp-2">
             {thread.problem_description}
           </p>
         ) : null}
         {hasStack ? (
-          <div className="flex flex-wrap gap-x-1.5 gap-y-1 overflow-hidden pt-0.5">
+          <div className="flex flex-wrap gap-x-1.5 gap-y-1 overflow-hidden pt-1">
             {filteredStack.map((tech) => (
               <Badge key={tech} variant="default">
                 {tech}
