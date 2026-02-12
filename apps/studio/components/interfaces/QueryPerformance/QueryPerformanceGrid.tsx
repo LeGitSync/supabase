@@ -341,6 +341,18 @@ export const QueryPerformanceGrid = ({
           )
         }
 
+        if (col.id === 'application_name') {
+          return (
+            <div className="w-full flex flex-col justify-center">
+              {value ? (
+                <p className="font-mono text-xs">{value}</p>
+              ) : (
+                <p className="text-muted">&ndash;</p>
+              )}
+            </div>
+          )
+        }
+
         return (
           <div className="w-full flex flex-col gap-y-0.5 justify-center text-xs">
             <p>{formattedValue}</p>

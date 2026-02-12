@@ -11,6 +11,7 @@ export interface QueryPerformanceRow {
   rows_read: number
   cache_hit_rate: number
   rolname: string
+  application_name?: string
   index_advisor_result?: GetIndexAdvisorResultResponse | null
   _total_cache_hits?: number
   _total_cache_misses?: number
