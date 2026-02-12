@@ -30,7 +30,6 @@
     "@octokit/graphql": "^8.0.0",
     "@octokit/plugin-paginate-graphql": "^4.0.0",
     "@octokit/rest": "^21.0.0",
-    "@payloadcms/live-preview-react": "^3.0.0",
     "@radix-ui/react-dialog": "^1.0.5",
     "@sentry/nextjs": "catalog:",
     "@supabase/supabase-js": "catalog:",
@@ -45,6 +44,7 @@
     "common-tags": "^1.8.2",
     "config": "workspace:*",
     "dayjs": "^1.11.12",
+    "dev-tools": "workspace:*",
     "eslint-config-supabase": "workspace:*",
     "framer-motion": "^11.0.3",
     "globby": "^13.2.2",
@@ -90,6 +90,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@babel/core": "*",
     "@hookform/resolvers": "^3.1.1",
     "@types/animejs": "^3.1.12",
     "@types/classnames": "^2.3.1",

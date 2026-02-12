@@ -1,13 +1,18 @@
 import {
-  FilterGroup,
-  FilterCondition,
-  FilterProperty,
-  CustomOptionObject,
-  FilterOptionObject,
-  FilterOperatorObject,
   AsyncOptionsFunction,
-  SyncOptionsFunction,
+  CustomOptionObject,
+  FilterCondition,
+  FilterGroup,
+  FilterOperatorGroup,
+  FilterOperatorObject,
+  FilterOptionObject,
+  FilterProperty,
+  GROUP_ORDER,
+  GroupedMenuItem,
   isGroup,
+  MenuItem,
+  MenuItemGroup,
+  SyncOptionsFunction,
 } from './types'
 
 export function pathsEqual(a: number[], b: number[]): boolean {
@@ -133,17 +138,9 @@ export function addFilterToGroup(
   property: FilterProperty
 ): FilterGroup {
   if (path.length === 0) {
-    const firstOperator = property.operators?.[0] || '='
-    const operatorValue = isFilterOperatorObject(firstOperator)
-      ? firstOperator.value
-      : firstOperator
-
     return {
       ...group,
-      conditions: [
-        ...group.conditions,
-        { propertyName: property.name, value: '', operator: operatorValue },
-      ],
+      conditions: [...group.conditions, { propertyName: property.name, value: '', operator: '' }],
     }
   }
 
@@ -264,4 +261,18 @@ export function updateGroupAtPath(
       index === current ? updateGroupAtPath(condition as FilterGroup, rest, newGroup) : condition
     ),
   }
+}
+
+export function groupMenuItemsByOperator(items: MenuItem[]): MenuItemGroup[] {
+  const grouped = items.reduce<Map<FilterOperatorGroup, GroupedMenuItem[]>>((acc, item, index) => {
+    const group: FilterOperatorGroup = item.group ?? 'uncategorized'
+    const existing = acc.get(group) ?? []
+    acc.set(group, [...existing, { item, index }])
+    return acc
+  }, new Map())
+
+  return GROUP_ORDER.filter((groupKey) => grouped.has(groupKey)).map((groupKey) => ({
+    group: groupKey,
+    items: grouped.get(groupKey) ?? [],
+  }))
 }
