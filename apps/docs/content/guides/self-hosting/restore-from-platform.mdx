@@ -32,6 +32,12 @@ supabase db dump --db-url [CONNECTION_STRING] -f data.sql --use-copy --data-only
 
 This produces SQL files that are compatible across PostgreSQL versions.
 
+<Admonition type="note">
+
+`supabase db dump` uses `pg_dump` under the hood but applies Supabase-specific filtering - it excludes internal schemas, strips reserved roles, and adds idempotent `IF NOT EXISTS` clauses. Using raw `pg_dump` directly will include Supabase internals and cause permission errors during restore. The CLI requires Docker because it runs `pg_dump` from the Supabase Postgres image to ensure version compatibility.
+
+</Admonition>
+
 ## Step 3: Prepare your self-hosted instance
 
 Before restoring, check the following on your self-hosted instance:
@@ -114,18 +120,6 @@ Keep in mind:
 - Check that all extensions you use are available on the self-hosted Postgres version.
 
 ## Troubleshooting
-
-### Permission errors with `supabase_admin`
-
-If you see errors like `must be able to SET ROLE "supabase_admin"` or `ALTER ... OWNER TO "supabase_admin"` during restore, this is because the non-superuser `postgres` role doesn't have permission to execute `ALTER ... OWNER TO "supabase_admin"` statements that appear in the dump for Supabase-internal schemas (`auth`, `storage`, `realtime`, `extensions`, etc.).
-
-Since you're restoring to a fresh self-hosted instance, these schemas are already set up during Docker initialization and the ownership statements from the dump are unnecessary. Your user objects in the `public` schema are owned by `postgres` on both platform and self-hosted, so they restore without issues.
-
-**Workaround:** Before restoring, comment out the ownership statements from `schema.sql`:
-
-```bash
-sed -i 's/ALTER .* OWNER TO "supabase_admin"/-- &/' schema.sql
-```
 
 ### Extension not available
 
