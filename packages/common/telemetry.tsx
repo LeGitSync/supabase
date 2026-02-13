@@ -16,6 +16,7 @@ import { ensurePlatformSuffix, isBrowser } from './helpers'
 import { useParams, useTelemetryCookie } from './hooks'
 import { posthogClient, type ClientTelemetryEvent } from './posthog-client'
 import { TelemetryEvent } from './telemetry-constants'
+import type { FirstReferrerData } from './first-referrer-cookie'
 import { isExternalReferrer, parseFirstReferrerCookie } from './first-referrer-cookie'
 import {
   clearTelemetryDataCookie,
@@ -106,7 +107,7 @@ function handlePageTelemetry(
   slug?: string,
   ref?: string,
   telemetryDataOverride?: SharedTelemetryData,
-  firstReferrerData?: import('./first-referrer-cookie').FirstReferrerData | null
+  firstReferrerData?: FirstReferrerData | null
 ) {
   // Send to PostHog client-side (only in browser)
   if (typeof window !== 'undefined') {
