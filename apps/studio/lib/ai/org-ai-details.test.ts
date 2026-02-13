@@ -120,7 +120,7 @@ describe('ai/org-ai-details', () => {
       expect(result).toEqual({
         aiOptInLevel: 'schema_only',
         isLimited: true,
-        hasHipaaAddon: false,
+        isHipaaEnabled: false,
       })
     })
 
@@ -269,7 +269,7 @@ describe('ai/org-ai-details', () => {
       expect(result.isLimited).toBe(false) // Pro plan
     })
 
-    it('should return hasHipaaAddon true when subscription has HIPAA addon and project is sensitive', async () => {
+    it('should return isHipaaEnabled true when subscription has HIPAA addon and project is sensitive', async () => {
       const mockOrg = {
         id: 1,
         slug: 'test-org',
@@ -290,10 +290,10 @@ describe('ai/org-ai-details', () => {
         projectRef: 'test-project',
       })
 
-      expect(result.hasHipaaAddon).toBe(true)
+      expect(result.isHipaaEnabled).toBe(true)
     })
 
-    it('should return hasHipaaAddon false when subscription has HIPAA addon but project is not sensitive', async () => {
+    it('should return isHipaaEnabled false when subscription has HIPAA addon but project is not sensitive', async () => {
       const mockOrg = {
         id: 1,
         slug: 'test-org',
@@ -314,10 +314,10 @@ describe('ai/org-ai-details', () => {
         projectRef: 'test-project',
       })
 
-      expect(result.hasHipaaAddon).toBe(false)
+      expect(result.isHipaaEnabled).toBe(false)
     })
 
-    it('should return hasHipaaAddon false when project is sensitive but no HIPAA addon', async () => {
+    it('should return isHipaaEnabled false when project is sensitive but no HIPAA addon', async () => {
       const mockOrg = {
         id: 1,
         slug: 'test-org',
@@ -338,7 +338,7 @@ describe('ai/org-ai-details', () => {
         projectRef: 'test-project',
       })
 
-      expect(result.hasHipaaAddon).toBe(false)
+      expect(result.isHipaaEnabled).toBe(false)
     })
 
     it('should fetch subscription and project settings with authorization headers', async () => {

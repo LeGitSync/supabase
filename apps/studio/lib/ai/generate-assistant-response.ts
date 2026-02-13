@@ -45,7 +45,7 @@ export async function generateAssistantResponse({
   getSchemas?: () => Promise<string>
   projectRef?: string
   chatName?: string
-  hasHipaaAddon?: boolean
+  isHipaaEnabled?: boolean
   promptProviderOptions?: Record<string, any>
   providerOptions?: Record<string, any>
   abortSignal?: AbortSignal
