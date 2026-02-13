@@ -2846,6 +2846,8 @@ export const self_hosting: NavMenuConstant = {
           url: '/reference/self-hosting-storage/introduction' as `/${string}`,
         },
         { name: 'Configuration', url: '/guides/self-hosting/storage/config' },
+        { name: 'Configure S3 Storage', url: '/guides/self-hosting/configure-storage' },
+        { name: 'Copy Storage from Platform', url: '/guides/self-hosting/copy-storage' },
       ],
     },
     {
