@@ -45,6 +45,7 @@ export async function generateAssistantResponse({
   getSchemas?: () => Promise<string>
   projectRef?: string
   chatName?: string
+  // TODO(mattrossman): use for excluding HIPAA projects from assistant tracing
   isHipaaEnabled?: boolean
   promptProviderOptions?: Record<string, any>
   providerOptions?: Record<string, any>
