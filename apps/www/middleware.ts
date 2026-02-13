@@ -8,17 +8,13 @@ import {
 } from 'common/first-referrer-cookie'
 
 export function middleware(request: NextRequest) {
-  // If the first-referrer cookie is already set, skip — write-once behavior
-  if (request.cookies.has(FIRST_REFERRER_COOKIE_NAME)) {
-    return NextResponse.next()
-  }
+  // If the first-referrer cookie is already set, skip
+  if (request.cookies.has(FIRST_REFERRER_COOKIE_NAME)) return NextResponse.next()
 
   const referrer = request.headers.get('referer') ?? ''
 
   // Only stamp the cookie when the referrer is external
-  if (!isExternalReferrer(referrer)) {
-    return NextResponse.next()
-  }
+  if (!isExternalReferrer(referrer)) return NextResponse.next()
 
   const data = buildFirstReferrerData({
     referrer,
@@ -33,7 +29,9 @@ export function middleware(request: NextRequest) {
     {
       path: '/',
       sameSite: 'lax',
-      // Set domain to supabase.com in production so the cookie is readable from studio
+      // Use a shared domain on *.supabase.com so www/docs -> studio can read it.
+      // On non-supabase hosts (localhost, previews), leave domain unset so the
+      // browser stores a host-only cookie instead of rejecting an invalid domain.
       ...(request.nextUrl.hostname === 'supabase.com' ||
       request.nextUrl.hostname.endsWith('.supabase.com')
         ? { domain: 'supabase.com' }

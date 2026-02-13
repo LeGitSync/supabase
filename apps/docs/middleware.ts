@@ -28,6 +28,9 @@ function maybeStampFirstReferrerCookie(request: NextRequest, response: NextRespo
   response.cookies.set(FIRST_REFERRER_COOKIE_NAME, serializeFirstReferrerCookie(data), {
     path: '/',
     sameSite: 'lax',
+    // Use a shared domain on *.supabase.com so www/docs -> studio can read it.
+    // On non-supabase hosts (localhost, previews), leave domain unset so the
+    // browser stores a host-only cookie instead of rejecting an invalid domain.
     ...(request.nextUrl.hostname === 'supabase.com' ||
     request.nextUrl.hostname.endsWith('.supabase.com')
       ? { domain: 'supabase.com' }
