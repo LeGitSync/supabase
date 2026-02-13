@@ -10,6 +10,7 @@ import {
   PopoverAnchor_Shadcn_,
   PopoverContent_Shadcn_,
 } from 'ui'
+
 import { DefaultCommandList } from './DefaultCommandList'
 import { useFilterBar } from './FilterBarContext'
 import { useDeferredBlur, useHighlightNavigation } from './hooks'
@@ -21,6 +22,7 @@ export type FilterConditionProps = {
   path: number[]
   isActive: boolean
   isOperatorActive: boolean
+  isHighlighted: boolean
 }
 
 export function FilterCondition({
@@ -28,6 +30,7 @@ export function FilterCondition({
   path,
   isActive,
   isOperatorActive,
+  isHighlighted,
 }: FilterConditionProps) {
   const {
     filters: rootFilters,
@@ -55,19 +58,25 @@ export function FilterCondition({
   const [showValueCustom, setShowValueCustom] = useState(false)
   const [hasTypedOperator, setHasTypedOperator] = useState(false)
   const [hasTypedValue, setHasTypedValue] = useState(false)
+  const [localValue, setLocalValue] = useState((condition.value ?? '').toString())
+
+  const conditionValue = (condition.value ?? '').toString()
 
   // Reset "has typed" state when focus changes
   useEffect(() => {
-    if (!isOperatorActive) {
-      setHasTypedOperator(false)
-    }
-  }, [isOperatorActive, setHasTypedOperator])
+    if (!isOperatorActive) setHasTypedOperator(false)
+  }, [isOperatorActive])
 
   useEffect(() => {
-    if (!isActive) {
-      setHasTypedValue(false)
+    if (!isActive) setHasTypedValue(false)
+  }, [isActive])
+
+  // Sync local value with condition.value when it changes externally (e.g., dropdown selection)
+  useEffect(() => {
+    if (localValue !== conditionValue) {
+      setLocalValue(conditionValue)
     }
-  }, [isActive, setHasTypedValue])
+  }, [conditionValue])
 
   useEffect(() => {
     if (isActive && valueRef.current) {
@@ -105,7 +114,7 @@ export function FilterCondition({
         filterProperties,
         propertyOptionsCache,
         loadingOptions,
-        (condition.value ?? '').toString(),
+        conditionValue,
         hasTypedValue
       ),
     [
@@ -114,7 +123,7 @@ export function FilterCondition({
       filterProperties,
       propertyOptionsCache,
       loadingOptions,
-      condition.value,
+      conditionValue,
       hasTypedValue,
     ]
   )
@@ -133,13 +142,28 @@ export function FilterCondition({
     }
   }, [isActive, isLoading, valueItems, showValueCustom])
 
+  const handleOperatorBackspace = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Backspace' && condition.operator === '') {
+        e.preventDefault()
+        handleRemoveCondition(path)
+        setActiveInput({ type: 'group', path: path.slice(0, -1) })
+      }
+    },
+    [condition.operator, setActiveInput, path, handleRemoveCondition]
+  )
+
   const {
     highlightedIndex: opHighlightedIndex,
     handleKeyDown: handleOperatorKeyDown,
     reset: resetOpHighlight,
-  } = useHighlightNavigation(operatorItems.length, (index) => {
-    if (operatorItems[index]) handleSelectMenuItem(operatorItems[index])
-  })
+  } = useHighlightNavigation(
+    operatorItems.length,
+    (index) => {
+      if (operatorItems[index]) handleSelectMenuItem(operatorItems[index])
+    },
+    handleOperatorBackspace
+  )
 
   const {
     highlightedIndex: valHighlightedIndex,
@@ -178,6 +202,7 @@ export function FilterCondition({
   const onValueChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setHasTypedValue(true)
+      setLocalValue(e.target.value)
       handleInputChange(path, e.target.value)
     },
     [handleInputChange, path]
@@ -194,7 +219,8 @@ export function FilterCondition({
       ref={wrapperRef}
       className={cn(
         'flex items-stretch px-0 bg-muted group shrink-0',
-        variant === 'pill' ? 'rounded border' : 'border-r'
+        variant === 'pill' ? 'rounded border' : 'border-r',
+        isHighlighted && 'ring-2 ring-primary'
       )}
     >
       <span
@@ -241,6 +267,7 @@ export function FilterCondition({
             highlightedIndex={opHighlightedIndex}
             onSelect={handleSelectMenuItem}
             includeIcon={false}
+            grouped
           />
         </PopoverContent_Shadcn_>
       </Popover_Shadcn_>
@@ -250,7 +277,7 @@ export function FilterCondition({
             <Input_Shadcn_
               ref={valueRef}
               type="text"
-              value={(condition.value ?? '').toString()}
+              value={localValue}
               onChange={onValueChange}
               onFocus={() => handleInputFocus(path)}
               onBlur={handleValueBlur}
@@ -259,9 +286,7 @@ export function FilterCondition({
               disabled={isLoading}
               aria-label={`Value for ${property.label}`}
             />
-            <span className="invisible whitespace-pre text-xs block px-1">
-              {(condition.value ?? '').toString() || ' '}
-            </span>
+            <span className="invisible whitespace-pre text-xs block px-1">{localValue || ' '}</span>
           </div>
         </PopoverAnchor_Shadcn_>
         <PopoverContent_Shadcn_
@@ -290,7 +315,7 @@ export function FilterCondition({
                 setShowValueCustom(false)
                 onRemove()
               },
-              search: (condition.value ?? '').toString(),
+              search: conditionValue,
             })
           ) : (
             <DefaultCommandList
@@ -317,6 +342,7 @@ export function FilterCondition({
         onClick={onRemove}
         className="group hover:text-foreground hover:!bg-surface-600 rounded-none px-1 h-auto py-0"
         aria-label={`Remove ${property.label} filter`}
+        tabIndex={-1}
       />
     </div>
   )
