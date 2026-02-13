@@ -87,9 +87,7 @@ export const MonthlyNewsletterEmail = ({
 
             {/* Hero Section */}
             <Section style={heroSection}>
-              <Heading style={heroHeading}>
-                Your Monthly Supabase Update
-              </Heading>
+              <Heading style={heroHeading}>Your Monthly Supabase Update</Heading>
               <Text style={heroSubheading}>
                 {month} {year} • What's new in the Supabase ecosystem
               </Text>
@@ -142,9 +140,7 @@ export const MonthlyNewsletterEmail = ({
 
             {/* CTA Section */}
             <Section style={ctaSection}>
-              <Text style={ctaText}>
-                Ready to build something amazing?
-              </Text>
+              <Text style={ctaText}>Ready to build something amazing?</Text>
               <Button style={ctaButton} href={`${baseUrl}/dashboard`}>
                 Get Started
               </Button>
@@ -153,15 +149,12 @@ export const MonthlyNewsletterEmail = ({
             {/* Footer */}
             <Section style={footer}>
               <Text style={footerText}>
-                You're receiving this because you're subscribed to Supabase
-                updates.
+                You're receiving this because you're subscribed to Supabase updates.
               </Text>
               <Link href={unsubscribeUrl} style={unsubscribeLink}>
                 Unsubscribe
               </Link>
-              <Text style={footerText}>
-                Supabase Inc. • San Francisco, CA
-              </Text>
+              <Text style={footerText}>Supabase Inc. • San Francisco, CA</Text>
             </Section>
           </Container>
         </Body>

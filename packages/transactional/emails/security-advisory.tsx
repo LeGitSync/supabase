@@ -185,9 +185,7 @@ export const SecurityAdvisoryEmail = ({
     <Html>
       <Head />
       <Tailwind config={tailwindConfig}>
-        <Preview>
-          {`${totalIssueCount} security issues require your immediate attention`}
-        </Preview>
+        <Preview>{`${totalIssueCount} security issues require your immediate attention`}</Preview>
         <Body className="bg-white font-sans py-6 px-3">
           <Container className="bg-white mx-auto max-w-[600px]">
             <Section>
@@ -217,23 +215,16 @@ export const SecurityAdvisoryEmail = ({
 
               {/* Intro */}
               <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-8">
-                We detected security vulnerabilities in {projectCount} of your
-                projects that could expose your data to unauthorized access.{' '}
-                <strong>
-                  Review and fix them before your data is compromised.
-                </strong>
+                We detected security vulnerabilities in {projectCount} of your projects that could
+                expose your data to unauthorized access.{' '}
+                <strong>Review and fix them before your data is compromised.</strong>
               </Text>
 
               {/* Issue cards */}
               {issues.map((issue, i) => (
-                <Section
-                  key={i}
-                  className="border border-[#E6E6E6] rounded-lg p-6 mb-4"
-                >
+                <Section key={i} className="border border-[#E6E6E6] rounded-lg p-6 mb-4">
                   <Text className="text-foreground-muted text-[11px] font-semibold uppercase tracking-[0.5px] mt-0 mb-2">
-                    {issue.severity === 'critical'
-                      ? 'CRITICAL ISSUE'
-                      : 'WARNING'}
+                    {issue.severity === 'critical' ? 'CRITICAL ISSUE' : 'WARNING'}
                   </Text>
 
                   <Heading
@@ -242,9 +233,7 @@ export const SecurityAdvisoryEmail = ({
                   >
                     {issue.title}
                     {issue.count != null && (
-                      <span className="font-normal text-[14px]">
-                        &nbsp;×{issue.count}
-                      </span>
+                      <span className="font-normal text-[14px]">&nbsp;×{issue.count}</span>
                     )}
                   </Heading>
 
@@ -327,15 +316,9 @@ export const SecurityAdvisoryEmail = ({
               {/* Closing copy */}
               <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-4">
                 If these are not intentional,{' '}
-                <strong>
-                  they could result in unauthorized access to your database
-                </strong>
-                . We have a robust set of security checks which you can read
-                about in{' '}
-                <Link
-                  href={docsUrl}
-                  className="text-foreground-light underline"
-                >
+                <strong>they could result in unauthorized access to your database</strong>. We have
+                a robust set of security checks which you can read about in{' '}
+                <Link href={docsUrl} className="text-foreground-light underline">
                   our docs
                 </Link>
                 .
@@ -343,10 +326,7 @@ export const SecurityAdvisoryEmail = ({
 
               <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-4">
                 Reach out to{' '}
-                <Link
-                  href={supportUrl}
-                  className="text-foreground-light underline"
-                >
+                <Link href={supportUrl} className="text-foreground-light underline">
                   our support team
                 </Link>{' '}
                 if you have any questions.

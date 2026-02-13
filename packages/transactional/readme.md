@@ -56,7 +56,7 @@ import { SecurityAdvisoryEmail } from 'transactional/emails/security-advisory'
 import { MonthlyNewsletterEmail } from 'transactional/emails/monthly-newsletter'
 
 // Render the email
-const html = render(MonthlyNewsletterEmail({ 
+const html = render(MonthlyNewsletterEmail({
   month: 'January',
   year: '2026',
   featuredArticles: [...]
