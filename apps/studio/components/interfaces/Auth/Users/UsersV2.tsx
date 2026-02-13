@@ -286,6 +286,7 @@ export const UsersV2 = () => {
     isLoading,
     isRefetching,
     isError,
+    isFetched,
     isFetchingNextPage,
     refetch,
     hasNextPage,
@@ -810,7 +811,17 @@ export const UsersV2 = () => {
                     <div className="absolute top-14 px-6 flex flex-col items-center justify-center w-full">
                       <AlertError subject="Failed to retrieve users" error={error} />
                     </div>
-                  ) : (
+                  ) : isFetched && !isSuccess ? (
+                    <div className="absolute top-14 px-6 flex flex-col items-center justify-center w-full">
+                      <AlertError
+                        subject="Unable to load users"
+                        error={{
+                          message:
+                            'Could not connect to the database. Please check your project status.',
+                        }}
+                      />
+                    </div>
+                  ) : isSuccess ? (
                     <div className="absolute top-20 px-6 flex flex-col items-center justify-center w-full gap-y-2">
                       <Users className="text-foreground-lighter" strokeWidth={1} />
                       <div className="text-center">
@@ -826,7 +837,7 @@ export const UsersV2 = () => {
                         </p>
                       </div>
                     </div>
-                  ),
+                  ) : null,
                 }}
               />
             </div>
