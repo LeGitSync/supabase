@@ -12,26 +12,11 @@ import {
   Row,
   Section,
   Text,
+  Tailwind,
+  pixelBasedPreset,
 } from '@react-email/components'
 import * as React from 'react'
 import { EmailFooter } from './components/EmailFooter'
-
-/**
- * Color tokens derived from the Supabase design system.
- *
- * destructive-600 (light):  hsl(9.9, 82%, 43.5%)  → #CA3214
- * destructive-default:      hsl(10.2, 77.9%, 53.9%) → #E54D2E
- */
-const colors = {
-  destructive: '#E54D2E',
-  destructive600: '#CA3214',
-  foreground: '#171717',
-  foregroundLight: '#525252',
-  foregroundLighter: '#707070',
-  foregroundMuted: '#A0A0A0',
-  border: '#E6E6E6',
-  white: '#FFFFFF',
-}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -141,6 +126,50 @@ const defaultIssues: SecurityIssue[] = [
 ]
 
 // ---------------------------------------------------------------------------
+// Tailwind config — colour tokens from the Supabase design system (light theme)
+//
+// destructive-default: hsl(10.2, 77.9%, 53.9%) → #E54D2E
+// destructive-600:     hsl(9.9, 82%, 43.5%)    → #CA3214
+// foreground-default:  hsl(0, 0%, 9%)           → #171717
+// foreground-light:    hsl(0, 0%, 32.2%)        → #525252
+// foreground-lighter:  hsl(0, 0%, 43.9%)        → #707070
+// foreground-muted:    hsl(0, 0%, 62.7%)        → #A0A0A0
+// border-default:      hsl(0, 0%, 90.2%)        → #E6E6E6
+// ---------------------------------------------------------------------------
+
+const tailwindConfig = {
+  presets: [pixelBasedPreset],
+  theme: {
+    extend: {
+      colors: {
+        brand: '#007291',
+        destructive: {
+          DEFAULT: '#E54D2E',
+          600: '#CA3214',
+        },
+        foreground: {
+          DEFAULT: '#171717',
+          light: '#525252',
+          lighter: '#707070',
+          muted: '#A0A0A0',
+        },
+      },
+      fontFamily: {
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"Segoe UI"',
+          'Roboto',
+          '"Helvetica Neue"',
+          'Ubuntu',
+          'sans-serif',
+        ],
+      },
+    },
+  },
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -155,364 +184,189 @@ export const SecurityAdvisoryEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>
-        {`${totalIssueCount} security issues require your immediate attention`}
-      </Preview>
-      <Body style={main}>
-        <Container style={container}>
-          {/* ---- Main content ---- */}
-          <Section style={content}>
-            {/* Warning badge */}
-            <Row style={{ marginBottom: '16px' }}>
-              <Column style={{ width: '32px', verticalAlign: 'middle' }}>
-                <Text style={warningIcon}>⚠</Text>
-              </Column>
-              <Column style={{ verticalAlign: 'middle' }}>
-                <Text style={badgeCount}>×{totalIssueCount}</Text>
-              </Column>
-            </Row>
+      <Tailwind config={tailwindConfig}>
+        <Preview>
+          {`${totalIssueCount} security issues require your immediate attention`}
+        </Preview>
+        <Body className="bg-white font-sans py-6 px-3">
+          <Container className="bg-white mx-auto max-w-[600px]">
+            <Section>
+              {/* Warning badge */}
+              <Row className="mb-4">
+                <Column style={{ width: '32px', verticalAlign: 'middle' }}>
+                  <Text
+                    className="bg-destructive text-white rounded-lg text-center text-[16px] m-0 inline-block"
+                    style={{ width: '28px', height: '28px', lineHeight: '28px' }}
+                  >
+                    ⚠
+                  </Text>
+                </Column>
+                <Column style={{ verticalAlign: 'middle' }}>
+                  <Text className="text-destructive text-[16px] font-semibold m-0 pl-1.5">
+                    ×{totalIssueCount}
+                  </Text>
+                </Column>
+              </Row>
 
-            {/* Heading */}
-            <Heading style={heading}>
-              These issues require
-              <br />
-              your immediate attention
-            </Heading>
+              {/* Heading */}
+              <Heading className="text-destructive-600 text-[28px] font-bold leading-[1.2] mt-0 mb-4">
+                These issues require
+                <br />
+                your immediate attention
+              </Heading>
 
-            {/* Intro */}
-            <Text style={introText}>
-              We detected security vulnerabilities in {projectCount} of your
-              projects that could expose your data to unauthorized access.{' '}
-              <strong>
-                Review and fix them before your data is compromised.
-              </strong>
-            </Text>
+              {/* Intro */}
+              <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-8">
+                We detected security vulnerabilities in {projectCount} of your
+                projects that could expose your data to unauthorized access.{' '}
+                <strong>
+                  Review and fix them before your data is compromised.
+                </strong>
+              </Text>
 
-            {/* Issue cards */}
-            {issues.map((issue, i) => (
-              <Section key={i} style={issueCard}>
-                {/* Severity label */}
-                <Text style={severityLabel}>
-                  {issue.severity === 'critical'
-                    ? 'CRITICAL ISSUE'
-                    : 'WARNING'}
-                </Text>
+              {/* Issue cards */}
+              {issues.map((issue, i) => (
+                <Section
+                  key={i}
+                  className="border border-[#E6E6E6] rounded-lg p-6 mb-4"
+                >
+                  <Text className="text-foreground-muted text-[11px] font-semibold uppercase tracking-[0.5px] mt-0 mb-2">
+                    {issue.severity === 'critical'
+                      ? 'CRITICAL ISSUE'
+                      : 'WARNING'}
+                  </Text>
 
-                {/* Issue title */}
-                <Heading as="h2" style={issueTitle}>
-                  {issue.title}
-                  {issue.count != null && (
-                    <span style={issueCountStyle}>&nbsp;×{issue.count}</span>
-                  )}
-                </Heading>
+                  <Heading
+                    as="h2"
+                    className="text-destructive-600 text-[18px] font-semibold leading-[1.3] mt-0 mb-2"
+                  >
+                    {issue.title}
+                    {issue.count != null && (
+                      <span className="font-normal text-[14px]">
+                        &nbsp;×{issue.count}
+                      </span>
+                    )}
+                  </Heading>
 
-                {/* Description */}
-                <Text style={issueDescription}>
-                  {issue.description}
-                  {issue.learnMoreUrl && (
-                    <>
-                      {' '}
-                      <Link href={issue.learnMoreUrl} style={learnMoreLink}>
-                        Learn more
-                      </Link>
-                    </>
-                  )}
-                </Text>
-
-                <Hr style={issueDivider} />
-
-                {/* Affects */}
-                <Text style={affectsLabel}>AFFECTS</Text>
-
-                {issue.affectedProjects.map((project, j) => (
-                  <React.Fragment key={j}>
-                    {j > 0 && <Hr style={projectDivider} />}
-                    <Row>
-                      <Column style={projectInfoCol}>
-                        <Text style={projectName}>{project.name}</Text>
-                        {project.createdBy && (
-                          <Text style={projectCreatedBy}>
-                            Created by {project.createdBy}
-                          </Text>
-                        )}
-                        <Text style={entitiesList}>
-                          {project.affectedEntities.join(', ')}
-                          {project.moreEntitiesCount != null &&
-                            project.moreEntitiesCount > 0 &&
-                            `, and ${project.moreEntitiesCount} other tables`}
-                        </Text>
-                      </Column>
-                      <Column style={resolveCol}>
-                        <Button href={project.resolveUrl} style={resolveButton}>
-                          Resolve now
-                        </Button>
-                      </Column>
-                    </Row>
-                  </React.Fragment>
-                ))}
-
-                {/* Overflow */}
-                {issue.overflowText && (
-                  <Text style={overflowText}>
-                    {issue.overflowUrl ? (
-                      <Link href={issue.overflowUrl} style={overflowLink}>
-                        {issue.overflowText}
-                      </Link>
-                    ) : (
-                      issue.overflowText
+                  <Text className="text-foreground-light text-[14px] leading-[1.5] m-0">
+                    {issue.description}
+                    {issue.learnMoreUrl && (
+                      <>
+                        {' '}
+                        <Link
+                          href={issue.learnMoreUrl}
+                          className="text-foreground-lighter underline"
+                        >
+                          Learn more
+                        </Link>
+                      </>
                     )}
                   </Text>
-                )}
-              </Section>
-            ))}
 
-            {/* Closing copy */}
-            <Text style={closingText}>
-              If these are not intentional,{' '}
-              <strong>
-                they could result in unauthorized access to your database
-              </strong>
-              . We have a robust set of security checks which you can read about
-              in{' '}
-              <Link href={docsUrl} style={inlineLink}>
-                our docs
-              </Link>
-              .
-            </Text>
+                  <Hr className="border-[#E6E6E6] my-4" />
 
-            <Text style={closingText}>
-              Reach out to{' '}
-              <Link href={supportUrl} style={inlineLink}>
-                our support team
-              </Link>{' '}
-              if you have any questions.
-            </Text>
+                  <Text className="text-foreground-muted text-[11px] font-semibold uppercase tracking-[0.5px] mt-0 mb-3">
+                    AFFECTS
+                  </Text>
 
-            <Text style={signoff}>
-              Best,
-              <br />
-              Supabase
-            </Text>
-          </Section>
+                  {issue.affectedProjects.map((project, j) => (
+                    <React.Fragment key={j}>
+                      {j > 0 && <Hr className="border-[#E6E6E6] my-3" />}
+                      <Row>
+                        <Column style={{ verticalAlign: 'middle' }}>
+                          <Text className="text-foreground text-[14px] font-semibold mt-0 mb-0.5">
+                            {project.name}
+                          </Text>
+                          {project.createdBy && (
+                            <Text className="text-foreground-lighter text-[13px] mt-0 mb-2">
+                              Created by {project.createdBy}
+                            </Text>
+                          )}
+                          <Text className="text-foreground-light text-[12px] font-mono leading-[1.4] m-0">
+                            {project.affectedEntities.join(', ')}
+                            {project.moreEntitiesCount != null &&
+                              project.moreEntitiesCount > 0 &&
+                              `, and ${project.moreEntitiesCount} other tables`}
+                          </Text>
+                        </Column>
+                        <Column
+                          style={{
+                            width: '120px',
+                            verticalAlign: 'middle',
+                            textAlign: 'right' as const,
+                          }}
+                        >
+                          <Button
+                            href={project.resolveUrl}
+                            className="bg-destructive-600 text-white rounded-md text-[14px] font-semibold px-4 py-3 no-underline text-center inline-block"
+                          >
+                            Resolve now
+                          </Button>
+                        </Column>
+                      </Row>
+                    </React.Fragment>
+                  ))}
 
-          <Hr style={footerDivider} />
+                  {issue.overflowText && (
+                    <Text className="text-foreground-lighter text-[13px] mt-3 mb-0">
+                      {issue.overflowUrl ? (
+                        <Link
+                          href={issue.overflowUrl}
+                          className="text-foreground-lighter underline"
+                        >
+                          {issue.overflowText}
+                        </Link>
+                      ) : (
+                        issue.overflowText
+                      )}
+                    </Text>
+                  )}
+                </Section>
+              ))}
 
-          {/* ---- Footer ---- */}
-          <EmailFooter notificationSettingsUrl={notificationSettingsUrl} />
-        </Container>
-      </Body>
+              {/* Closing copy */}
+              <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-4">
+                If these are not intentional,{' '}
+                <strong>
+                  they could result in unauthorized access to your database
+                </strong>
+                . We have a robust set of security checks which you can read
+                about in{' '}
+                <Link
+                  href={docsUrl}
+                  className="text-foreground-light underline"
+                >
+                  our docs
+                </Link>
+                .
+              </Text>
+
+              <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-4">
+                Reach out to{' '}
+                <Link
+                  href={supportUrl}
+                  className="text-foreground-light underline"
+                >
+                  our support team
+                </Link>{' '}
+                if you have any questions.
+              </Text>
+
+              <Text className="text-foreground-light text-[15px] leading-[1.6] mt-6 mb-0">
+                Best,
+                <br />
+                Supabase
+              </Text>
+            </Section>
+
+            <Hr className="border-[#E6E6E6] m-0" />
+
+            <EmailFooter notificationSettingsUrl={notificationSettingsUrl} />
+          </Container>
+        </Body>
+      </Tailwind>
     </Html>
   )
 }
 
 export default SecurityAdvisoryEmail
-
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const fontFamily =
-  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, sans-serif'
-
-const main: React.CSSProperties = {
-  // backgroundColor: '#F5F5F5',
-  backgroundColor: "white",
-  fontFamily,
-  padding: '24px 12px', // Defaults to 8px
-}
-
-const container: React.CSSProperties = {
-  backgroundColor: colors.white,
-  margin: '0 auto',
-  maxWidth: '600px',
-}
-
-const content: React.CSSProperties = {
-  // padding: '40px 48px',
-  // margin: '24px auto',
-}
-
-// -- Header --
-
-const warningIcon: React.CSSProperties = {
-  backgroundColor: colors.destructive,
-  color: colors.white,
-  borderRadius: '8px',
-  width: '28px',
-  height: '28px',
-  lineHeight: '28px',
-  textAlign: 'center',
-  fontSize: '16px',
-  margin: '0',
-  display: 'inline-block',
-}
-
-const badgeCount: React.CSSProperties = {
-  color: colors.destructive,
-  // backgroundColor: colors.destructive + '10',
-  fontSize: '16px',
-  fontWeight: '600',
-  margin: '0',
-  paddingLeft: '6px',
-}
-
-const heading: React.CSSProperties = {
-  color: colors.destructive600,
-  fontSize: '28px',
-  fontWeight: '700',
-  lineHeight: '1.2',
-  margin: '0 0 16px',
-}
-
-const introText: React.CSSProperties = {
-  color: colors.foregroundLight,
-  fontSize: '15px',
-  lineHeight: '1.6',
-  margin: '0 0 32px',
-}
-
-// -- Issue card --
-
-const issueCard: React.CSSProperties = {
-  border: `1px solid ${colors.border}`,
-  borderRadius: '8px',
-  padding: '24px',
-  marginBottom: '16px',
-}
-
-const severityLabel: React.CSSProperties = {
-  color: colors.foregroundMuted,
-  fontSize: '11px',
-  fontWeight: '600',
-  letterSpacing: '0.5px',
-  textTransform: 'uppercase',
-  margin: '0 0 8px',
-}
-
-const issueTitle: React.CSSProperties = {
-  color: colors.destructive600,
-  fontSize: '18px',
-  fontWeight: '600',
-  lineHeight: '1.3',
-  margin: '0 0 8px',
-}
-
-const issueCountStyle: React.CSSProperties = {
-  fontWeight: '400',
-  fontSize: '14px',
-}
-
-const issueDescription: React.CSSProperties = {
-  color: colors.foregroundLight,
-  fontSize: '14px',
-  lineHeight: '1.5',
-  margin: '0',
-}
-
-const learnMoreLink: React.CSSProperties = {
-  color: colors.foregroundLighter,
-  textDecoration: 'underline',
-}
-
-const issueDivider: React.CSSProperties = {
-  borderColor: colors.border,
-  margin: '16px 0',
-}
-
-const affectsLabel: React.CSSProperties = {
-  color: colors.foregroundMuted,
-  fontSize: '11px',
-  fontWeight: '600',
-  letterSpacing: '0.5px',
-  textTransform: 'uppercase',
-  margin: '0 0 12px',
-}
-
-// -- Project rows --
-
-const projectDivider: React.CSSProperties = {
-  borderColor: colors.border,
-  margin: '12px 0',
-}
-
-const projectInfoCol: React.CSSProperties = {
-  verticalAlign: 'middle',
-}
-
-const projectName: React.CSSProperties = {
-  color: colors.foreground,
-  fontSize: '14px',
-  fontWeight: '600',
-  margin: '0 0 2px',
-}
-
-const projectCreatedBy: React.CSSProperties = {
-  color: colors.foregroundLighter,
-  fontSize: '13px',
-  margin: '0 0 8px',
-}
-
-const entitiesList: React.CSSProperties = {
-  color: colors.foregroundLight,
-  fontSize: '12px',
-  fontFamily: 'SFMono-Regular, Menlo, Consolas, monospace',
-  lineHeight: '1.4',
-  margin: '0',
-}
-
-const resolveCol: React.CSSProperties = {
-  width: '120px',
-  verticalAlign: 'middle',
-  textAlign: 'right',
-}
-
-const resolveButton: React.CSSProperties = {
-  backgroundColor: colors.destructive600,
-  color: colors.white,
-  borderRadius: '6px',
-  fontSize: '14px',
-  fontWeight: '600',
-  padding: '12px 16px',
-  textDecoration: 'none',
-  textAlign: 'center',
-  display: 'inline-block',
-}
-
-// -- Overflow --
-
-const overflowText: React.CSSProperties = {
-  color: colors.foregroundLighter,
-  fontSize: '13px',
-  margin: '12px 0 0',
-}
-
-const overflowLink: React.CSSProperties = {
-  color: colors.foregroundLighter,
-  textDecoration: 'underline',
-}
-
-// -- Closing --
-
-const closingText: React.CSSProperties = {
-  color: colors.foregroundLight,
-  fontSize: '15px',
-  lineHeight: '1.6',
-  margin: '0 0 16px',
-}
-
-const inlineLink: React.CSSProperties = {
-  color: colors.foregroundLight,
-  textDecoration: 'underline',
-}
-
-const signoff: React.CSSProperties = {
-  color: colors.foregroundLight,
-  fontSize: '15px',
-  lineHeight: '1.6',
-  margin: '24px 0 0',
-}
-
-const footerDivider: React.CSSProperties = {
-  borderColor: colors.border,
-  margin: '0',
-}

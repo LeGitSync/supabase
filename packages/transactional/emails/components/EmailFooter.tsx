@@ -1,4 +1,4 @@
-import { Hr, Img, Link, Section, Text } from '@react-email/components'
+import { Img, Link, Section, Text } from '@react-email/components'
 import * as React from 'react'
 
 interface EmailFooterProps {
@@ -14,18 +14,22 @@ export const EmailFooter = ({
     notificationSettingsUrl = 'https://supabase.com/dashboard/account/notifications',
 }: EmailFooterProps) => {
     return (
-        <Section style={footer}>
+        <Section className="mt-4">
             <Img
                 src={`${baseUrl}/static/supabase-logo-grayscale.png`}
-                width="20"
-                height="20"
+
+                width="24"
+                height="24"
                 alt="Supabase"
-                style={logo}
+                className="mb-4"
             />
-            <Link href={notificationSettingsUrl} style={settingsLink}>
+            <Link
+                href={notificationSettingsUrl}
+                className="text-[#666666] text-[13px] underline block mb-4"
+            >
                 Notification settings
             </Link>
-            <Text style={address}>
+            <Text className="text-[#999999] text-[12px] leading-[1.5] m-0">
                 Supabase Inc,
                 <br />
                 3500 S. DuPont Highway,
@@ -34,29 +38,4 @@ export const EmailFooter = ({
             </Text>
         </Section>
     )
-}
-
-const footer: React.CSSProperties = {
-    // padding: '32px 48px',
-    marginTop: '28px',
-    // textAlign: 'center',
-}
-
-const logo: React.CSSProperties = {
-    margin: '0 0 16px',
-}
-
-const settingsLink: React.CSSProperties = {
-    color: '#666666',
-    fontSize: '13px',
-    textDecoration: 'underline',
-    display: 'block',
-    marginBottom: '10px',
-}
-
-const address: React.CSSProperties = {
-    color: '#999999',
-    fontSize: '13px',
-    lineHeight: '1.5',
-    margin: '0',
 }
