@@ -352,6 +352,8 @@ export function useCreateCommands(options?: CommandOptions) {
               return <Layers />
             case 'graphiql':
               return <Graphql />
+            case 'data_api':
+              return <Code2 />
             default:
               // Fallback to integration icon for other Postgres modules
               return integration.icon()
