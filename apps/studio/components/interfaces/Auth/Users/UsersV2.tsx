@@ -4,8 +4,8 @@ import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
 import AwesomeDebouncePromise from 'awesome-debounce-promise'
 import { LOCAL_STORAGE_KEYS, useFlag, useParams } from 'common'
 import { useIsAPIDocsSidePanelEnabled } from 'components/interfaces/App/FeaturePreview/FeaturePreviewContext'
-import { APIDocsButton } from 'components/ui/APIDocsButton'
 import { AlertError } from 'components/ui/AlertError'
+import { APIDocsButton } from 'components/ui/APIDocsButton'
 import { ButtonTooltip } from 'components/ui/ButtonTooltip'
 import { FilterPopover } from 'components/ui/FilterPopover'
 import { FormHeader } from 'components/ui/Forms/FormHeader'
@@ -39,23 +39,23 @@ import { UIEvent, useEffect, useMemo, useRef, useState } from 'react'
 import DataGrid, { Column, DataGridHandle, Row } from 'react-data-grid'
 import { toast } from 'sonner'
 import {
+  Alert_Shadcn_,
   AlertDescription_Shadcn_,
   AlertTitle_Shadcn_,
-  Alert_Shadcn_,
   Button,
+  cn,
   LoadingLine,
   ResizablePanel,
   ResizablePanelGroup,
+  Select_Shadcn_,
   SelectContent_Shadcn_,
   SelectGroup_Shadcn_,
   SelectItem_Shadcn_,
   SelectTrigger_Shadcn_,
   SelectValue_Shadcn_,
-  Select_Shadcn_,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  cn,
 } from 'ui'
 import ConfirmationModal from 'ui-patterns/Dialogs/ConfirmationModal'
 import { GenericSkeletonLoader } from 'ui-patterns/ShimmeringLoader'
@@ -75,6 +75,8 @@ import {
 import { formatUserColumns, formatUsersData } from './Users.utils'
 import { UsersFooter } from './UsersFooter'
 import { UsersSearch } from './UsersSearch'
+import { HighCostError } from '@/components/ui/HighQueryCost'
+import { COST_THRESHOLD_ERROR } from '@/data/sql/execute-sql-query'
 
 const SORT_BY_VALUE_COUNT_THRESHOLD = 10_000
 const IMPROVED_SEARCH_COUNT_THRESHOLD = 10_000
@@ -90,7 +92,7 @@ limit 100`
 export const UsersV2 = () => {
   const queryClient = useQueryClient()
   const { ref: projectRef } = useParams()
-  const { data: project } = useSelectedProjectQuery()
+  const { data: project, isLoading: isLoadingProject } = useSelectedProjectQuery()
   const { data: selectedOrg } = useSelectedOrganizationQuery()
   const gridRef = useRef<DataGridHandle>(null)
   const xScroll = useRef<number>(0)
@@ -318,6 +320,13 @@ export const UsersV2 = () => {
       enabled: !isUserSearchIndexesLoading && !isAuthConfigLoading && !isIndexWorkerStatusLoading,
     }
   )
+  const isLoadingUsers =
+    isLoading ||
+    isAuthConfigLoading ||
+    isIndexWorkerStatusLoading ||
+    isUserSearchIndexesLoading ||
+    isLoadingProject
+  const isHighCostError = error?.message.includes(COST_THRESHOLD_ERROR)
 
   const { mutateAsync: deleteUser } = useUserDeleteMutation()
 
@@ -802,13 +811,26 @@ export const UsersV2 = () => {
                       />
                     )
                   },
-                  noRowsFallback: isLoading ? (
+                  noRowsFallback: isLoadingUsers ? (
                     <div className="absolute top-14 px-6 w-full">
                       <GenericSkeletonLoader />
                     </div>
                   ) : isError ? (
                     <div className="absolute top-14 px-6 flex flex-col items-center justify-center w-full">
-                      <AlertError subject="Failed to retrieve users" error={error} />
+                      {isHighCostError ? (
+                        <HighCostError
+                          error={error}
+                          suggestions={
+                            specificFilterColumn === 'freeform'
+                              ? [
+                                  "Avoid using unified search as it's a heavy query which searches across multiple columns",
+                                ]
+                              : []
+                          }
+                        />
+                      ) : (
+                        <AlertError subject="Failed to retrieve users" error={error} />
+                      )}
                     </div>
                   ) : (
                     <div className="absolute top-20 px-6 flex flex-col items-center justify-center w-full gap-y-2">

@@ -2,14 +2,13 @@ import {
   getPaginatedUsersSQL,
   UsersCursor,
 } from '@supabase/pg-meta/src/sql/studio/get-users-paginated'
-import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query'
-
 import { OptimizedSearchColumns } from '@supabase/pg-meta/src/sql/studio/get-users-types'
+import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query'
 import type { components } from 'data/api'
-import { executeSql, ExecuteSqlError } from 'data/sql/execute-sql-query'
+import { COST_THRESHOLD_ERROR, executeSql, ExecuteSqlError } from 'data/sql/execute-sql-query'
 import { useSelectedProjectQuery } from 'hooks/misc/useSelectedProject'
-import { PROJECT_STATUS } from 'lib/constants'
 import { UseCustomInfiniteQueryOptions } from 'types'
+
 import { authKeys } from './keys'
 
 const USERS_PAGE_LIMIT = 50
@@ -59,7 +58,6 @@ export const useUsersInfiniteQuery = <TData = UsersData>(
   > = {}
 ) => {
   const { data: project } = useSelectedProjectQuery()
-  const isActive = project?.status === PROJECT_STATUS.ACTIVE_HEALTHY
 
   return useInfiniteQuery({
     queryKey: authKeys.usersInfinite(projectRef, {
@@ -88,11 +86,17 @@ export const useUsersInfiniteQuery = <TData = UsersData>(
             cursor: improvedSearchEnabled ? (pageParam as UsersCursor) : undefined,
             improvedSearchEnabled,
           }),
+          queryKey: ['users-infinite'],
+          preflightCheck: true,
         },
         signal
       )
     },
-    enabled: enabled && typeof projectRef !== 'undefined' && isActive,
+    retry: (failureCount, error) => {
+      if (error.message === COST_THRESHOLD_ERROR) return false
+      return failureCount < 3
+    },
+    enabled: enabled && typeof projectRef !== 'undefined',
     initialPageParam: undefined,
     getNextPageParam(lastPage, pages) {
       const hasNextPage = lastPage.result.length >= USERS_PAGE_LIMIT

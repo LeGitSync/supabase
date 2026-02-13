@@ -250,7 +250,11 @@ export const Grid = memo(
                 <GenericSkeletonLoader className="w-full top-9 absolute p-2" />
               )}
 
-              {isError && <GridError error={error} />}
+              {isError && (
+                <div className="w-full absolute top-9 p-2">
+                  <GridError error={error} />
+                </div>
+              )}
 
               {isSuccess && (
                 <>
