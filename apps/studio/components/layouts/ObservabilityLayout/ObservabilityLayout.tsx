@@ -1,11 +1,13 @@
 import { PropsWithChildren, useEffect } from 'react'
 import { useParams } from 'common'
 import { LOCAL_STORAGE_KEYS, IS_PLATFORM } from 'common'
+import { useIsNavigationV2Enabled } from 'components/interfaces/App/FeaturePreview/FeaturePreviewContext'
 import { UnknownInterface } from 'components/ui/UnknownInterface'
 import { useIsFeatureEnabled } from 'hooks/misc/useIsFeatureEnabled'
 import { withAuth } from 'hooks/misc/withAuth'
 import { useLocalStorageQuery } from 'hooks/misc/useLocalStorage'
 import { BannerMetricsAPI } from 'components/ui/BannerStack/Banners/BannerMetricsAPI'
+import { ProjectLayoutV2 } from '../NavigationV2/ProjectLayoutV2'
 import { ProjectLayout } from '../ProjectLayout'
 import ObservabilityMenu from './ObservabilityMenu'
 import { BannerStackProvider, useBannerStack } from 'components/ui/BannerStack/BannerStackProvider'
@@ -83,8 +85,21 @@ const ObservabilityLayoutContent = ({
   ])
 
   const { reportsAll } = useIsFeatureEnabled(['reports:all'])
+  const isNavigationV2 = useIsNavigationV2Enabled()
 
   if (reportsAll) {
+    if (isNavigationV2) {
+      return (
+        <ProjectLayoutV2
+          title={title}
+          product="Observability"
+          isBlocking={false}
+        >
+          {children}
+        </ProjectLayoutV2>
+      )
+    }
+
     return (
       <ProjectLayout
         title={title}

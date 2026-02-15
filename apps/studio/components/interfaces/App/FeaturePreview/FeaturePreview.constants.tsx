@@ -50,4 +50,11 @@ export const FEATURE_PREVIEWS = [
     isNew: true,
     isPlatformOnly: false,
   },
+  {
+    key: LOCAL_STORAGE_KEYS.UI_PREVIEW_NAVIGATION_V2,
+    name: 'New navigation layout',
+    discussionsUrl: undefined,
+    isNew: true,
+    isPlatformOnly: false,
+  },
 ] as const

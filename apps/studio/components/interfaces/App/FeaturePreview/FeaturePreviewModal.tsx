@@ -13,6 +13,7 @@ import { Branching2Preview } from './Branching2Preview'
 import { CLSPreview } from './CLSPreview'
 import { FEATURE_PREVIEWS } from './FeaturePreview.constants'
 import { useFeaturePreviewContext, useFeaturePreviewModal } from './FeaturePreviewContext'
+import { NavigationV2Preview } from './NavigationV2Preview'
 import { QueueOperationsPreview } from './QueueOperationsPreview'
 import { TableFilterBarPreview } from './TableFilterBarPreview'
 import { UnifiedLogsPreview } from './UnifiedLogsPreview'
@@ -27,6 +28,7 @@ const FEATURE_PREVIEW_KEY_TO_CONTENT: {
   [LOCAL_STORAGE_KEYS.UI_PREVIEW_UNIFIED_LOGS]: <UnifiedLogsPreview />,
   [LOCAL_STORAGE_KEYS.UI_PREVIEW_QUEUE_OPERATIONS]: <QueueOperationsPreview />,
   [LOCAL_STORAGE_KEYS.UI_PREVIEW_TABLE_FILTER_BAR]: <TableFilterBarPreview />,
+  [LOCAL_STORAGE_KEYS.UI_PREVIEW_NAVIGATION_V2]: <NavigationV2Preview />,
 }
 
 const FeaturePreviewModal = () => {

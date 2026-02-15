@@ -2,8 +2,10 @@ import { useRouter } from 'next/router'
 import { PropsWithChildren } from 'react'
 
 import { useParams } from 'common'
+import { useIsNavigationV2Enabled } from 'components/interfaces/App/FeaturePreview/FeaturePreviewContext'
 import { ProductMenu } from 'components/ui/ProductMenu'
 import { withAuth } from 'hooks/misc/withAuth'
+import { ProjectLayoutV2 } from '../NavigationV2/ProjectLayoutV2'
 import { ProjectLayout } from '../ProjectLayout'
 
 const EdgeFunctionsProductMenu = () => {
@@ -36,6 +38,16 @@ const EdgeFunctionsProductMenu = () => {
 }
 
 const EdgeFunctionsLayout = ({ children }: PropsWithChildren<{}>) => {
+  const isNavigationV2 = useIsNavigationV2Enabled()
+
+  if (isNavigationV2) {
+    return (
+      <ProjectLayoutV2 title="Edge Functions" product="Edge Functions" isBlocking={false}>
+        {children}
+      </ProjectLayoutV2>
+    )
+  }
+
   return (
     <ProjectLayout
       title="Edge Functions"

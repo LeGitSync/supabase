@@ -2,11 +2,13 @@ import { useRouter } from 'next/router'
 import { PropsWithChildren } from 'react'
 
 import { useParams } from 'common'
+import { useIsNavigationV2Enabled } from 'components/interfaces/App/FeaturePreview/FeaturePreviewContext'
 import { ProductMenu } from 'components/ui/ProductMenu'
 import { useIsFeatureEnabled } from 'hooks/misc/useIsFeatureEnabled'
 import { useSelectedOrganizationQuery } from 'hooks/misc/useSelectedOrganization'
 import { useSelectedProjectQuery } from 'hooks/misc/useSelectedProject'
 import { withAuth } from 'hooks/misc/withAuth'
+import { ProjectLayoutV2 } from '../NavigationV2/ProjectLayoutV2'
 import { ProjectLayout } from '../ProjectLayout'
 import { generateSettingsMenu } from './SettingsMenu.utils'
 
@@ -56,6 +58,16 @@ const SettingsLayout = ({ title, children }: PropsWithChildren<SettingsLayoutPro
     logDrains: projectSettingsLogDrains,
     billing: billingAll,
   })
+
+  const isNavigationV2 = useIsNavigationV2Enabled()
+
+  if (isNavigationV2) {
+    return (
+      <ProjectLayoutV2 isBlocking={false} title={title || 'Settings'} product="Settings">
+        {children}
+      </ProjectLayoutV2>
+    )
+  }
 
   return (
     <ProjectLayout

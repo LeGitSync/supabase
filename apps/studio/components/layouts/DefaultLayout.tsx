@@ -3,11 +3,13 @@ import { PropsWithChildren } from 'react'
 
 import { LOCAL_STORAGE_KEYS, useParams } from 'common'
 import { AppBannerWrapper } from 'components/interfaces/App/AppBannerWrapper'
+import { useIsNavigationV2Enabled } from 'components/interfaces/App/FeaturePreview/FeaturePreviewContext'
 import { Sidebar } from 'components/interfaces/Sidebar'
 import { useLocalStorageQuery } from 'hooks/misc/useLocalStorage'
 import { useCheckLatestDeploy } from 'hooks/use-check-latest-deploy'
 import { useAppStateSnapshot } from 'state/app-state'
 import { ResizablePanel, ResizablePanelGroup, SidebarProvider } from 'ui'
+import { DefaultLayoutV2 } from './NavigationV2/DefaultLayoutV2'
 import { LayoutHeader } from './ProjectLayout/LayoutHeader/LayoutHeader'
 import { LayoutSidebar } from './ProjectLayout/LayoutSidebar'
 import { LayoutSidebarProvider } from './ProjectLayout/LayoutSidebar/LayoutSidebarProvider'
@@ -30,6 +32,24 @@ export interface DefaultLayoutProps {
  * - First level side navigation bar (e.g For navigating to Table Editor, SQL Editor, Database page, etc)
  */
 export const DefaultLayout = ({
+  children,
+  headerTitle,
+  hideMobileMenu,
+}: PropsWithChildren<DefaultLayoutProps>) => {
+  const isNavigationV2 = useIsNavigationV2Enabled()
+
+  if (isNavigationV2) {
+    return <DefaultLayoutV2 headerTitle={headerTitle}>{children}</DefaultLayoutV2>
+  }
+
+  return (
+    <DefaultLayoutV1 headerTitle={headerTitle} hideMobileMenu={hideMobileMenu}>
+      {children}
+    </DefaultLayoutV1>
+  )
+}
+
+const DefaultLayoutV1 = ({
   children,
   headerTitle,
   hideMobileMenu,

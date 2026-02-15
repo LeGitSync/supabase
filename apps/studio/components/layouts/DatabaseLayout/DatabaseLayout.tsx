@@ -1,7 +1,10 @@
 import { useRouter } from 'next/router'
 import { PropsWithChildren } from 'react'
 
-import { useIsColumnLevelPrivilegesEnabled } from 'components/interfaces/App/FeaturePreview/FeaturePreviewContext'
+import {
+  useIsColumnLevelPrivilegesEnabled,
+  useIsNavigationV2Enabled,
+} from 'components/interfaces/App/FeaturePreview/FeaturePreviewContext'
 import { useIsETLPrivateAlpha } from 'components/interfaces/Database/Replication/useIsETLPrivateAlpha'
 import { ProductMenu } from 'components/ui/ProductMenu'
 import { useDatabaseExtensionsQuery } from 'data/database-extensions/database-extensions-query'
@@ -9,6 +12,7 @@ import { useProjectAddonsQuery } from 'data/subscriptions/project-addons-query'
 import { useIsFeatureEnabled } from 'hooks/misc/useIsFeatureEnabled'
 import { useSelectedProjectQuery } from 'hooks/misc/useSelectedProject'
 import { withAuth } from 'hooks/misc/withAuth'
+import { ProjectLayoutV2 } from '../NavigationV2/ProjectLayoutV2'
 import { ProjectLayout } from '../ProjectLayout'
 import { generateDatabaseMenu } from './DatabaseMenu.utils'
 
@@ -58,6 +62,16 @@ const DatabaseProductMenu = () => {
 }
 
 const DatabaseLayout = ({ children }: PropsWithChildren<DatabaseLayoutProps>) => {
+  const isNavigationV2 = useIsNavigationV2Enabled()
+
+  if (isNavigationV2) {
+    return (
+      <ProjectLayoutV2 product="Database" isBlocking={false}>
+        {children}
+      </ProjectLayoutV2>
+    )
+  }
+
   return (
     <ProjectLayout product="Database" productMenu={<DatabaseProductMenu />} isBlocking={false}>
       {children}
