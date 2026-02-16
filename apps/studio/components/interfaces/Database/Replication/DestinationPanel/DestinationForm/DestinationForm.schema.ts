@@ -13,6 +13,11 @@ export const DestinationPanelFormSchema = z.object({
     .min(1, 'Max table sync workers should be greater than 0')
     .int()
     .optional(),
+  maxCopyConnectionsPerTable: z
+    .number()
+    .int()
+    .min(1, 'Max copy connections per table should be greater than 0')
+    .optional(),
   // BigQuery fields
   projectId: z.string().optional(),
   datasetId: z.string().optional(),

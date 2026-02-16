@@ -130,6 +130,37 @@ export const AdvancedSettings = ({
               )}
             />
 
+            <FormField_Shadcn_
+              control={form.control}
+              name="maxCopyConnectionsPerTable"
+              render={({ field }) => (
+                <FormItemLayout
+                  label="Copy connections per table"
+                  layout="horizontal"
+                  description={
+                    <>
+                      <p>
+                        Number of copy connections each table sync worker can use in parallel when
+                        copying a table.
+                      </p>
+                    </>
+                  }
+                >
+                  <FormControl_Shadcn_>
+                    <PrePostTab postTab="connections">
+                      <Input_Shadcn_
+                        {...field}
+                        type="number"
+                        value={field.value ?? ''}
+                        onChange={handleNumberChange(field)}
+                        placeholder="Default: 4"
+                      />
+                    </PrePostTab>
+                  </FormControl_Shadcn_>
+                </FormItemLayout>
+              )}
+            />
+
             {/* BigQuery-specific: Max staleness */}
             {type === 'BigQuery' && (
               <FormField_Shadcn_

@@ -11,6 +11,7 @@ type ValidatePipelineParams = {
   maxFillMs?: number
   maxSize?: number
   maxTableSyncWorkers?: number
+  maxCopyConnectionsPerTable?: number
 }
 type ValidatePipelineResponse = components['schemas']['ValidatePipelineResponse']
 
@@ -22,6 +23,7 @@ async function validatePipeline(
     maxFillMs,
     maxSize,
     maxTableSyncWorkers,
+    maxCopyConnectionsPerTable,
   }: ValidatePipelineParams,
   signal?: AbortSignal
 ): Promise<ValidatePipelineResponse> {
@@ -40,6 +42,7 @@ async function validatePipeline(
       config: {
         publication_name: publicationName,
         max_table_sync_workers: maxTableSyncWorkers,
+        max_copy_connections_per_table: maxCopyConnectionsPerTable,
         batch: batchConfig,
       },
     },

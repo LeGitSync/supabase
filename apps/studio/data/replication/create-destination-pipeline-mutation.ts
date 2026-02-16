@@ -45,6 +45,7 @@ export type CreateDestinationPipelineParams = {
     publicationName: string
     batch?: BatchConfig
     maxTableSyncWorkers?: number
+    maxCopyConnectionsPerTable?: number
   }
 }
 
@@ -53,7 +54,12 @@ async function createDestinationPipeline(
     projectRef,
     destinationName: destinationName,
     destinationConfig,
-    pipelineConfig: { publicationName, batch, maxTableSyncWorkers },
+    pipelineConfig: {
+      publicationName,
+      batch,
+      maxTableSyncWorkers,
+      maxCopyConnectionsPerTable,
+    },
     sourceId,
   }: CreateDestinationPipelineParams,
   signal?: AbortSignal
@@ -112,6 +118,9 @@ async function createDestinationPipeline(
         publication_name: publicationName,
         ...(maxTableSyncWorkers !== undefined
           ? { max_table_sync_workers: maxTableSyncWorkers }
+          : {}),
+        ...(maxCopyConnectionsPerTable !== undefined
+          ? { max_copy_connections_per_table: maxCopyConnectionsPerTable }
           : {}),
         ...(batch
           ? {

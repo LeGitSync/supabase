@@ -176,6 +176,8 @@ export const DestinationForm = ({
       maxFillMs: pipelineData?.config?.batch?.max_fill_ms ?? undefined,
       maxSize: pipelineData?.config?.batch?.max_size ?? undefined,
       maxTableSyncWorkers: pipelineData?.config?.max_table_sync_workers ?? undefined,
+      maxCopyConnectionsPerTable:
+        pipelineData?.config?.max_copy_connections_per_table ?? undefined,
       // BigQuery fields
       projectId: isBigQueryConfig ? config.big_query.project_id : '',
       datasetId: isBigQueryConfig ? config.big_query.dataset_id : '',
@@ -305,6 +307,7 @@ export const DestinationForm = ({
         maxFillMs: data.maxFillMs,
         maxSize: data.maxSize,
         maxTableSyncWorkers: data.maxTableSyncWorkers,
+        maxCopyConnectionsPerTable: data.maxCopyConnectionsPerTable,
       }),
     ])
 
@@ -422,6 +425,7 @@ export const DestinationForm = ({
           pipelineConfig: {
             publicationName: data.publicationName,
             maxTableSyncWorkers: data.maxTableSyncWorkers,
+            maxCopyConnectionsPerTable: data.maxCopyConnectionsPerTable,
             ...(hasBatchFields ? { batch: batchConfig } : {}),
           },
           sourceId,
@@ -504,6 +508,7 @@ export const DestinationForm = ({
           pipelineConfig: {
             publicationName: data.publicationName,
             maxTableSyncWorkers: data.maxTableSyncWorkers,
+            maxCopyConnectionsPerTable: data.maxCopyConnectionsPerTable,
             ...(hasBatchFields ? { batch: batchConfig } : {}),
           },
         })
