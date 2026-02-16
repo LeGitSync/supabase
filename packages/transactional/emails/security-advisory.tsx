@@ -39,6 +39,8 @@ interface SecurityIssue {
   affectedProjects: AffectedProject[]
   overflowText?: string
   overflowUrl?: string
+  /** When set, only this substring of overflowText is hyperlinked (e.g. "3 more of your projects") */
+  overflowLinkText?: string
 }
 
 interface SecurityAdvisoryEmailProps {
@@ -85,6 +87,7 @@ const defaultIssues: SecurityIssue[] = [
     ],
     overflowText: '+99 other tables across 3 more of your projects',
     overflowUrl: `${baseUrl}/dashboard`,
+    overflowLinkText: '3 more of your projects',
   },
   {
     severity: 'critical',
@@ -193,7 +196,7 @@ export const SecurityAdvisoryEmail = ({
       <Tailwind config={tailwindConfig}>
         <Head />
         <Preview>{`${totalIssueCount} security issues require your immediate attention`}</Preview>
-        <Body className="bg-white font-sans py-6 md:py-10 px-3">
+        <Body className="bg-white font-sans px-1.5 py-6 md:py-8">
           <Container className="bg-white mx-auto max-w-[600px]">
             <Section>
               {/* Warning badge */}
@@ -206,7 +209,7 @@ export const SecurityAdvisoryEmail = ({
                     ⚠
                   </Text>
                 </Column>
-                <Column style={{ verticalAlign: 'middle' }}>
+                <Column>
                   <Text className="text-destructive text-[16px] font-semibold m-0">
                     ×{totalIssueCount}
                   </Text>
@@ -259,7 +262,7 @@ export const SecurityAdvisoryEmail = ({
                     )}
                   </Text>
 
-                  <Hr className="border-[#E8E8E8] opacity-80 my-6" />
+                  <Hr className="border-[#E8E8E8] opacity-80 my-5" />
 
                   <Text className="text-foreground-muted text-[11px] uppercase tracking-[0.85px] mt-0 mb-2">
                     AFFECTS
@@ -267,8 +270,7 @@ export const SecurityAdvisoryEmail = ({
 
                   {issue.affectedProjects.map((project, j) => (
                     <React.Fragment key={j}>
-                      {j > 0 && <Hr className="border-[#E8E8E8] opacity-80 my-4" />}
-                      {/* Mobile-first stacked layout: project info then button (no media queries; clients strip them) */}
+                      {j > 0 && <Hr className="border-[#E8E8E8] opacity-50 my-5" />}
                       <Row>
                         <Column style={{ verticalAlign: 'top' }} className="w-full">
                           <Text className="text-foreground text-[14px] font-semibold mt-0 mb-0.5">
@@ -279,19 +281,26 @@ export const SecurityAdvisoryEmail = ({
                               Created by {project.createdBy}
                             </Text>
                           )}
-                          <Text className="text-foreground-light text-[12px] font-mono leading-[1.4] m-0">
+                          <Text className="text-foreground-light text-[12px] font-mono leading-[1.5] m-0">
+
                             {project.affectedEntities.join(', ')}
-                            {project.moreEntitiesCount != null &&
-                              project.moreEntitiesCount > 0 &&
-                              `, and ${project.moreEntitiesCount} other tables`}
+
+
                           </Text>
+                          {project.moreEntitiesCount != null && project.moreEntitiesCount > 0 && (
+                            <Text className="text-foreground-muted text-[13px] leading-[1.4] mt-1 mb-0  ">
+
+                              + {project.moreEntitiesCount} other tables
+
+                            </Text>
+                          )}
                         </Column>
                       </Row>
                       <Row>
-                        <Column className="w-full pt-3.5">
+                        <Column className="pt-3.5">
                           <Button
                             href={project.resolveUrl}
-                            className="w-full sm:w-auto bg-destructive-600 hover:bg-destructive-700 transition-colors text-white rounded-md text-[14px] font-semibold px-3 py-2.5 no-underline text-center inline-block box-border"
+                            className="sm:w-auto bg-destructive-600 hover:bg-destructive-700 transition-colors text-white rounded-md text-[14px] font-semibold px-3 py-2.5 no-underline text-center inline-block box-border"
                           >
                             Resolve now
                           </Button>
@@ -301,24 +310,38 @@ export const SecurityAdvisoryEmail = ({
                   ))}
 
                   {issue.overflowText && (
-                    <Text className="text-foreground-muted hover:text-foreground-lighter transition-colors text-[13px] leading-[1.4] mt-3 mb-0">
-                      {issue.overflowUrl ? (
-                        <Link
-                          href={issue.overflowUrl}
-                          className="text-foreground-muted underline hover:text-foreground-lighter transition-colors"
-                        >
-                          {issue.overflowText}
-                        </Link>
-                      ) : (
-                        issue.overflowText
-                      )}
-                    </Text>
+                    <>
+                      <Hr className="border-[#E8E8E8] opacity-50 my-5" />
+                      <Text className="text-foreground-muted text-[13px] leading-[1.4] mt-3 mb-0">
+                        {issue.overflowUrl && issue.overflowLinkText && issue.overflowText.includes(issue.overflowLinkText) ? (
+                          <>
+                            {issue.overflowText.slice(0, issue.overflowText.indexOf(issue.overflowLinkText))}
+                            <Link
+                              href={issue.overflowUrl}
+                              className="text-foreground-muted underline hover:text-foreground-lighter transition-colors"
+                            >
+                              {issue.overflowLinkText}
+                            </Link>
+                            {issue.overflowText.slice(issue.overflowText.indexOf(issue.overflowLinkText) + issue.overflowLinkText.length)}
+                          </>
+                        ) : issue.overflowUrl ? (
+                          <Link
+                            href={issue.overflowUrl}
+                            className="text-foreground-muted underline hover:text-foreground-lighter transition-colors"
+                          >
+                            {issue.overflowText}
+                          </Link>
+                        ) : (
+                          issue.overflowText
+                        )}
+                      </Text>
+                    </>
                   )}
                 </Section>
               ))}
 
               {/* Closing copy */}
-              <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-4">
+              <Text className="text-foreground-light text-[15px] leading-[1.6] mt-8 mb-4">
                 If these are not intentional,{' '}
                 <strong className="text-foreground font-semibold">they could result in unauthorized access to your database</strong>. We have
                 a robust set of security checks which you can read about in{' '}
