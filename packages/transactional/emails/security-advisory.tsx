@@ -149,18 +149,20 @@ export const SecurityAdvisoryEmail = ({
           <Container className="bg-white mx-auto max-w-[600px]">
             <Section>
               {/* Warning badge */}
-              <Row className="mb-4">
-                <Column style={{ width: '32px', verticalAlign: 'middle' }}>
+              <Row className="mb-3">
+                <Column style={{ width: '24px', verticalAlign: 'left' }}>
                   <Text
-                    className="bg-destructive text-white rounded-md text-center text-[14px] m-0 inline-block"
+                    className="bg-destructive text-white rounded-md text-center text-[14px] m-0 mr-1 inline-block"
                     style={{ width: '24px', height: '24px', lineHeight: '24px' }}
                   >
                     ⚠
                   </Text>
                 </Column>
                 <Column>
-                  <Text className="text-destructive text-[16px] font-semibold m-0">
-                    ×{totalIssueCount}
+                  <Text className="bg-destructive-300 px-1.5 h-[24px] text-destructive-600 rounded-md text-center m-0 inline-block">
+                    <span className="text-destructive text-[13px] font-semibold m-0">
+                      ×{totalIssueCount}
+                    </span>
                   </Text>
                 </Column>
               </Row>
@@ -176,7 +178,9 @@ export const SecurityAdvisoryEmail = ({
               <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-8">
                 We detected security vulnerabilities in {projectCount} of your projects that could
                 expose your data to unauthorized access.{' '}
-                <strong className="text-foreground font-semibold">Review and fix them before your data is compromised.</strong>
+                <strong className="text-foreground font-semibold">
+                  Review and fix them before your data is compromised.
+                </strong>
               </Text>
 
               {/* Issue cards */}
@@ -231,16 +235,11 @@ export const SecurityAdvisoryEmail = ({
                             </Text>
                           )}
                           <Text className="text-foreground-light text-[12px] font-mono leading-[1.5] m-0">
-
                             {project.affectedEntities.join(', ')}
-
-
                           </Text>
                           {project.moreEntitiesCount != null && project.moreEntitiesCount > 0 && (
                             <Text className="text-foreground-muted text-[13px] leading-[1.4] mt-1 mb-0  ">
-
                               + {project.moreEntitiesCount} other tables
-
                             </Text>
                           )}
                         </Column>
@@ -249,7 +248,7 @@ export const SecurityAdvisoryEmail = ({
                         <Column className="pt-3.5">
                           <Button
                             href={project.resolveUrl}
-                            className="sm:w-auto bg-destructive-600 hover:bg-destructive-700 transition-colors text-white rounded-md text-[14px] font-semibold px-3 py-2.5 no-underline text-center inline-block box-border"
+                            className="w-full sm:w-auto bg-destructive-600 hover:bg-destructive-700 transition-colors text-white rounded-md text-[14px] font-semibold px-3 py-2.5 no-underline text-center inline-block box-border"
                           >
                             Resolve now
                           </Button>
@@ -262,16 +261,24 @@ export const SecurityAdvisoryEmail = ({
                     <>
                       <Hr className="border-[#E8E8E8] opacity-50 my-5" />
                       <Text className="text-foreground-muted text-[13px] leading-[1.4] mt-3 mb-0">
-                        {issue.overflowUrl && issue.overflowLinkText && issue.overflowText.includes(issue.overflowLinkText) ? (
+                        {issue.overflowUrl &&
+                        issue.overflowLinkText &&
+                        issue.overflowText.includes(issue.overflowLinkText) ? (
                           <>
-                            {issue.overflowText.slice(0, issue.overflowText.indexOf(issue.overflowLinkText))}
+                            {issue.overflowText.slice(
+                              0,
+                              issue.overflowText.indexOf(issue.overflowLinkText)
+                            )}
                             <Link
                               href={issue.overflowUrl}
                               className="text-foreground-muted underline hover:text-foreground-lighter transition-colors"
                             >
                               {issue.overflowLinkText}
                             </Link>
-                            {issue.overflowText.slice(issue.overflowText.indexOf(issue.overflowLinkText) + issue.overflowLinkText.length)}
+                            {issue.overflowText.slice(
+                              issue.overflowText.indexOf(issue.overflowLinkText) +
+                                issue.overflowLinkText.length
+                            )}
                           </>
                         ) : issue.overflowUrl ? (
                           <Link
@@ -292,9 +299,14 @@ export const SecurityAdvisoryEmail = ({
               {/* Closing copy */}
               <Text className="text-foreground-light text-[15px] leading-[1.6] mt-8 mb-4">
                 If these are not intentional,{' '}
-                <strong className="text-foreground font-semibold">they could result in unauthorized access to your database</strong>. We have
-                a robust set of security checks which you can read about in{' '}
-                <Link href={docsUrl} className="text-foreground-light underline hover:text-foreground transition-colors">
+                <strong className="text-foreground font-semibold">
+                  they could result in unauthorized access to your database
+                </strong>
+                . We have a robust set of security checks which you can read about in{' '}
+                <Link
+                  href={docsUrl}
+                  className="text-foreground-light underline hover:text-foreground transition-colors"
+                >
                   our docs
                 </Link>
                 .
@@ -302,7 +314,10 @@ export const SecurityAdvisoryEmail = ({
 
               <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-4">
                 Reach out to{' '}
-                <Link href={supportUrl} className="text-foreground-light underline hover:text-foreground transition-colors">
+                <Link
+                  href={supportUrl}
+                  className="text-foreground-light underline hover:text-foreground transition-colors"
+                >
                   our support team
                 </Link>{' '}
                 if you have any questions.

@@ -19,6 +19,7 @@ export const emailTailwindConfig = {
           DEFAULT: '#E54D2E',
           600: '#CA3214',
           700: '#B32912',
+          300: '#FFF0EE',
         },
         foreground: {
           DEFAULT: '#171717',
