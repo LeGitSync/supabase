@@ -1,7 +1,7 @@
 import { ChevronRight } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import Link from 'next/link'
-import { ReactNode } from 'react'
+import { isValidElement, ReactNode } from 'react'
 
 import {
   Collapsible_Shadcn_ as Collapsible,
@@ -100,12 +100,12 @@ export function NavGroup({ label, items }: NavGroupProps) {
 function NavItemIcon({ icon }: { icon?: LucideIcon | ReactNode }) {
   if (!icon) return null
 
-  // If it's a Lucide icon component (function component)
-  if (typeof icon === 'function') {
-    const IconComponent = icon as LucideIcon
-    return <IconComponent size={16} />
+  // If it's already a rendered React element (e.g. <SomeIcon />), use it as-is
+  if (isValidElement(icon)) {
+    return icon
   }
 
-  // It's already a ReactNode (e.g. custom SVG icon)
-  return <>{icon}</>
+  // Otherwise it's a component reference (function or forwardRef) - render it
+  const IconComponent = icon as LucideIcon
+  return <IconComponent size={16} />
 }
