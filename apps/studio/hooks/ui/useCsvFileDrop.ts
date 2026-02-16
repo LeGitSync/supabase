@@ -27,8 +27,6 @@ export function useCsvFileDrop({
 
       const [item] = event.dataTransfer.items
 
-      console.log(event.dataTransfer.items)
-
       // ignore non files drop, like column headers
       if (item && item.kind !== 'file') return
 
