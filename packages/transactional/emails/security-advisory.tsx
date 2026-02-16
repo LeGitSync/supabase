@@ -135,6 +135,8 @@ const defaultIssues: SecurityIssue[] = [
 // foreground-lighter:  hsl(0, 0%, 43.9%)        → #707070
 // foreground-muted:    hsl(0, 0%, 62.7%)        → #A0A0A0
 // border-default:      hsl(0, 0%, 90.2%)        → #E6E6E6
+// border-muted:        hsl(0, 0%, 87.5%)        → #E0E0E0 (subtler divider)
+// border-overlay:      hsl(0, 0%, 87.5%)        → #E8E8E8 (subtler divider)
 // ---------------------------------------------------------------------------
 
 const tailwindConfig = {
@@ -146,6 +148,7 @@ const tailwindConfig = {
         destructive: {
           DEFAULT: '#E54D2E',
           600: '#CA3214',
+          700: '#B32912',
         },
         foreground: {
           DEFAULT: '#171717',
@@ -153,6 +156,10 @@ const tailwindConfig = {
           lighter: '#707070',
           muted: '#A0A0A0',
         },
+        // Border tokens (match design system: border-default, border-muted)
+        default: '#E6E6E6',
+        muted: '#E0E0E0',
+        overlay: '#E8E8E8',
       },
       fontFamily: {
         sans: [
@@ -183,24 +190,24 @@ export const SecurityAdvisoryEmail = ({
 }: SecurityAdvisoryEmailProps) => {
   return (
     <Html>
-      <Head />
       <Tailwind config={tailwindConfig}>
+        <Head />
         <Preview>{`${totalIssueCount} security issues require your immediate attention`}</Preview>
-        <Body className="bg-white font-sans py-6 px-3">
+        <Body className="bg-white font-sans py-6 md:py-10 px-3">
           <Container className="bg-white mx-auto max-w-[600px]">
             <Section>
               {/* Warning badge */}
               <Row className="mb-4">
                 <Column style={{ width: '32px', verticalAlign: 'middle' }}>
                   <Text
-                    className="bg-destructive text-white rounded-lg text-center text-[16px] m-0 inline-block"
-                    style={{ width: '28px', height: '28px', lineHeight: '28px' }}
+                    className="bg-destructive text-white rounded-md text-center text-[14px] m-0 inline-block"
+                    style={{ width: '24px', height: '24px', lineHeight: '24px' }}
                   >
                     ⚠
                   </Text>
                 </Column>
                 <Column style={{ verticalAlign: 'middle' }}>
-                  <Text className="text-destructive text-[16px] font-semibold m-0 pl-1.5">
+                  <Text className="text-destructive text-[16px] font-semibold m-0">
                     ×{totalIssueCount}
                   </Text>
                 </Column>
@@ -217,13 +224,13 @@ export const SecurityAdvisoryEmail = ({
               <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-8">
                 We detected security vulnerabilities in {projectCount} of your projects that could
                 expose your data to unauthorized access.{' '}
-                <strong>Review and fix them before your data is compromised.</strong>
+                <strong className="text-foreground font-semibold">Review and fix them before your data is compromised.</strong>
               </Text>
 
               {/* Issue cards */}
               {issues.map((issue, i) => (
-                <Section key={i} className="border border-[#E6E6E6] rounded-lg p-6 mb-4">
-                  <Text className="text-foreground-muted text-[11px] font-semibold uppercase tracking-[0.5px] mt-0 mb-2">
+                <Section key={i} className="border border-default rounded-md p-4 mb-4">
+                  <Text className="text-foreground-muted text-[11px] uppercase tracking-[0.85px] mt-0 mb-2">
                     {issue.severity === 'critical' ? 'CRITICAL ISSUE' : 'WARNING'}
                   </Text>
 
@@ -244,7 +251,7 @@ export const SecurityAdvisoryEmail = ({
                         {' '}
                         <Link
                           href={issue.learnMoreUrl}
-                          className="text-foreground-lighter underline"
+                          className="text-foreground-lighter underline hover:text-foreground transition-colors"
                         >
                           Learn more
                         </Link>
@@ -252,22 +259,23 @@ export const SecurityAdvisoryEmail = ({
                     )}
                   </Text>
 
-                  <Hr className="border-[#E6E6E6] my-4" />
+                  <Hr className="border-[#E8E8E8] opacity-80 my-6" />
 
-                  <Text className="text-foreground-muted text-[11px] font-semibold uppercase tracking-[0.5px] mt-0 mb-3">
+                  <Text className="text-foreground-muted text-[11px] uppercase tracking-[0.85px] mt-0 mb-2">
                     AFFECTS
                   </Text>
 
                   {issue.affectedProjects.map((project, j) => (
                     <React.Fragment key={j}>
-                      {j > 0 && <Hr className="border-[#E6E6E6] my-3" />}
+                      {j > 0 && <Hr className="border-[#E8E8E8] opacity-80 my-4" />}
+                      {/* Mobile-first stacked layout: project info then button (no media queries; clients strip them) */}
                       <Row>
-                        <Column style={{ verticalAlign: 'middle' }}>
+                        <Column style={{ verticalAlign: 'top' }} className="w-full">
                           <Text className="text-foreground text-[14px] font-semibold mt-0 mb-0.5">
                             {project.name}
                           </Text>
                           {project.createdBy && (
-                            <Text className="text-foreground-lighter text-[13px] mt-0 mb-2">
+                            <Text className="text-foreground-muted text-[13px] leading-[1.3] mt-0 mb-2 break-all">
                               Created by {project.createdBy}
                             </Text>
                           )}
@@ -278,16 +286,12 @@ export const SecurityAdvisoryEmail = ({
                               `, and ${project.moreEntitiesCount} other tables`}
                           </Text>
                         </Column>
-                        <Column
-                          style={{
-                            width: '120px',
-                            verticalAlign: 'middle',
-                            textAlign: 'right' as const,
-                          }}
-                        >
+                      </Row>
+                      <Row>
+                        <Column className="w-full pt-3.5">
                           <Button
                             href={project.resolveUrl}
-                            className="bg-destructive-600 text-white rounded-md text-[14px] font-semibold px-4 py-3 no-underline text-center inline-block"
+                            className="w-full sm:w-auto bg-destructive-600 hover:bg-destructive-700 transition-colors text-white rounded-md text-[14px] font-semibold px-3 py-2.5 no-underline text-center inline-block box-border"
                           >
                             Resolve now
                           </Button>
@@ -297,11 +301,11 @@ export const SecurityAdvisoryEmail = ({
                   ))}
 
                   {issue.overflowText && (
-                    <Text className="text-foreground-lighter text-[13px] mt-3 mb-0">
+                    <Text className="text-foreground-muted hover:text-foreground-lighter transition-colors text-[13px] leading-[1.4] mt-3 mb-0">
                       {issue.overflowUrl ? (
                         <Link
                           href={issue.overflowUrl}
-                          className="text-foreground-lighter underline"
+                          className="text-foreground-muted underline hover:text-foreground-lighter transition-colors"
                         >
                           {issue.overflowText}
                         </Link>
@@ -316,9 +320,9 @@ export const SecurityAdvisoryEmail = ({
               {/* Closing copy */}
               <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-4">
                 If these are not intentional,{' '}
-                <strong>they could result in unauthorized access to your database</strong>. We have
+                <strong className="text-foreground font-semibold">they could result in unauthorized access to your database</strong>. We have
                 a robust set of security checks which you can read about in{' '}
-                <Link href={docsUrl} className="text-foreground-light underline">
+                <Link href={docsUrl} className="text-foreground-light underline hover:text-foreground transition-colors">
                   our docs
                 </Link>
                 .
@@ -326,7 +330,7 @@ export const SecurityAdvisoryEmail = ({
 
               <Text className="text-foreground-light text-[15px] leading-[1.6] mt-0 mb-4">
                 Reach out to{' '}
-                <Link href={supportUrl} className="text-foreground-light underline">
+                <Link href={supportUrl} className="text-foreground-light underline hover:text-foreground transition-colors">
                   our support team
                 </Link>{' '}
                 if you have any questions.
@@ -339,7 +343,7 @@ export const SecurityAdvisoryEmail = ({
               </Text>
             </Section>
 
-            <Hr className="border-[#E6E6E6] m-0" />
+            <Hr className="border-[#E8E8E8] my-8" />
 
             <EmailFooter notificationSettingsUrl={notificationSettingsUrl} />
           </Container>
