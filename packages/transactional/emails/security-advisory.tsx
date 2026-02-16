@@ -13,10 +13,10 @@ import {
   Section,
   Text,
   Tailwind,
-  pixelBasedPreset,
 } from '@react-email/components'
 import * as React from 'react'
 import { EmailFooter } from './components/EmailFooter'
+import { emailTailwindConfig } from './theme'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -129,57 +129,6 @@ const defaultIssues: SecurityIssue[] = [
 ]
 
 // ---------------------------------------------------------------------------
-// Tailwind config — colour tokens from the Supabase design system (light theme)
-//
-// destructive-default: hsl(10.2, 77.9%, 53.9%) → #E54D2E
-// destructive-600:     hsl(9.9, 82%, 43.5%)    → #CA3214
-// foreground-default:  hsl(0, 0%, 9%)           → #171717
-// foreground-light:    hsl(0, 0%, 32.2%)        → #525252
-// foreground-lighter:  hsl(0, 0%, 43.9%)        → #707070
-// foreground-muted:    hsl(0, 0%, 62.7%)        → #A0A0A0
-// border-default:      hsl(0, 0%, 90.2%)        → #E6E6E6
-// border-muted:        hsl(0, 0%, 87.5%)        → #E0E0E0 (subtler divider)
-// border-overlay:      hsl(0, 0%, 87.5%)        → #E8E8E8 (subtler divider)
-// ---------------------------------------------------------------------------
-
-const tailwindConfig = {
-  presets: [pixelBasedPreset],
-  theme: {
-    extend: {
-      colors: {
-        brand: '#007291',
-        destructive: {
-          DEFAULT: '#E54D2E',
-          600: '#CA3214',
-          700: '#B32912',
-        },
-        foreground: {
-          DEFAULT: '#171717',
-          light: '#525252',
-          lighter: '#707070',
-          muted: '#A0A0A0',
-        },
-        // Border tokens (match design system: border-default, border-muted)
-        default: '#E6E6E6',
-        muted: '#E0E0E0',
-        overlay: '#E8E8E8',
-      },
-      fontFamily: {
-        sans: [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"Segoe UI"',
-          'Roboto',
-          '"Helvetica Neue"',
-          'Ubuntu',
-          'sans-serif',
-        ],
-      },
-    },
-  },
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -193,7 +142,7 @@ export const SecurityAdvisoryEmail = ({
 }: SecurityAdvisoryEmailProps) => {
   return (
     <Html>
-      <Tailwind config={tailwindConfig}>
+      <Tailwind config={emailTailwindConfig}>
         <Head />
         <Preview>{`${totalIssueCount} security issues require your immediate attention`}</Preview>
         <Body className="bg-white font-sans px-1.5 py-6 md:py-8">
